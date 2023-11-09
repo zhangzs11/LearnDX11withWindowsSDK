@@ -51,4 +51,11 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Triangle.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Triangle_VS.hlsl" />
+    <FxCompile Include="Triangle_PS.hlsl" />
+  </ItemGroup>
 </Project>

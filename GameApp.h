@@ -5,6 +5,13 @@
 class GameApp : public D3DApp
 {
 public:
+    struct VertexPosColor
+    {
+        DirectX::XMFLOAT3 pos;
+        DirectX::XMFLOAT4 color;
+        static const D3D11_INPUT_ELEMENT_DESC inputLayout[2];
+    };
+public:
     GameApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidth, int initHeight);
     ~GameApp();
 
@@ -12,6 +19,16 @@ public:
     void OnResize();
     void UpdateScene(float dt);
     void DrawScene();
+
+private:
+    bool InitEffect();      //着色器或特效相关初始化
+    bool InitResource();    //资源初始化
+
+private:
+    ComPtr<ID3D11InputLayout> m_pVertexLayout;      //顶点输入布局
+    ComPtr<ID3D11Buffer> m_pVertexBuffer;           //顶点缓冲区
+    ComPtr<ID3D11VertexShader> m_pVertexShader;     //顶点着色器
+    ComPtr<ID3D11PixelShader> m_pPixelShader;       //像素着色器
 };
 
 
