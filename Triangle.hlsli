@@ -1,5 +1,4 @@
 //Triangle.hlsli
-
 struct VertexIn
 {
     float3 pos : POSITION;

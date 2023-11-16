@@ -8,6 +8,9 @@
 #include <DirectXMath.h>
 #include "CpuTimer.h"
 
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_win32.h>
 class D3DApp
 {
 public:
@@ -30,6 +33,7 @@ public:
 protected:
     bool InitMainWindow();      // 窗口初始化
     bool InitDirect3D();        // Direct3D初始化
+    bool InitImGui();           // ImGui初始化
 
     void CalculateFrameStats(); // 计算每秒帧数并在窗口显示
 
