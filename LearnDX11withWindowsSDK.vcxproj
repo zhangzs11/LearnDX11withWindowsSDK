@@ -145,6 +145,7 @@
     <ClCompile Include="DXTrace.cpp" />
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CpuTimer.h" />
@@ -152,6 +153,9 @@
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="DXTrace.h" />
     <ClInclude Include="GameApp.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="LightHelper.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Cube.hlsli" />
