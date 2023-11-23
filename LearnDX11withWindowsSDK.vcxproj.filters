@@ -66,11 +66,15 @@
   <ItemGroup>
     <None Include="Triangle.hlsli" />
     <None Include="Cube.hlsli" />
+    <None Include="Light.hlsli" />
+    <None Include="LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Triangle_VS.hlsl" />
     <FxCompile Include="Triangle_PS.hlsl" />
     <FxCompile Include="Cube_VS.hlsl" />
     <FxCompile Include="Cube_PS.hlsl" />
+    <FxCompile Include="Light_VS.hlsl" />
+    <FxCompile Include="Light_PS.hlsl" />
   </ItemGroup>
 </Project>

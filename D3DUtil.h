@@ -184,4 +184,19 @@ HRESULT CreateShaderFromFile(
     LPCSTR shaderModel,
     ID3DBlob** ppBlobOut);
 
+
+//
+// 数学相关函数
+//
+inline DirectX::XMMATRIX XM_CALLCONV InverseTranspose(DirectX::FXMMATRIX M)
+{
+    using namespace DirectX;
+
+    //世界矩阵的逆的转置仅针对法向量，我们也不需要世界矩阵的平移分量
+    //如果不去掉的话，后续再乘上观察矩阵之类的就会产生错误的变换结果
+    XMMATRIX A = M;
+    A.r[3] = g_XMIdentityR3;
+
+    return XMMatrixTranspose(XMMatrixInverse(nullptr, A));
+}
 #endif
