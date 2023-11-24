@@ -7,28 +7,26 @@
 
 extern "C"
 {
-	// 在具有多显卡的硬件设备中，优先使用NVIDIA或AMD的显卡运行
-	// 需要在.exe中使用
-	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
+    // 在具有多显卡的硬件设备中，优先使用NVIDIA或AMD的显卡运行
+    // 需要在.exe中使用
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
-
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
 {
-	// This is just used to forward Windows messages from a global window
-	// procedure to our member function window proccedure because we cannot
-	// assign a member function to WNDCLASS::lpfnWndProc.
-	D3DApp* g_pd3dApp = nullptr;
+    // This is just used to forward Windows messages from a global window
+    // procedure to our member function window procedure because we cannot
+    // assign a member function to WNDCLASS::lpfnWndProc.
+    D3DApp* g_pd3dApp = nullptr;
 }
 
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	// Forward hwnd on because we can get message (e.g., WM_CREATE)
-	// before CreateWindow returns, and thus before m_hMainWnd is valid.
-	return g_pd3dApp->MsgProc(hwnd, msg, wParam, lParam);
+    // Forward hwnd on because we can get messages (e.g., WM_CREATE)
+    // before CreateWindow returns, and thus before m_hMainWnd is valid.
+    return g_pd3dApp->MsgProc(hwnd, msg, wParam, lParam);
 }
 
 D3DApp::D3DApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidth, int initHeight)
@@ -52,6 +50,7 @@ D3DApp::D3DApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidt
 {
     ZeroMemory(&m_ScreenViewport, sizeof(D3D11_VIEWPORT));
 
+
     // 让一个全局指针获取这个类，这样我们就可以在Windows消息处理的回调函数
     // 让这个类调用内部的回调函数了
     g_pd3dApp = this;
@@ -60,9 +59,8 @@ D3DApp::D3DApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidt
 D3DApp::~D3DApp()
 {
     // 恢复所有默认设定
-    if (m_pd3dImmediateContext) {
+    if (m_pd3dImmediateContext)
         m_pd3dImmediateContext->ClearState();
-    }
 }
 
 HINSTANCE D3DApp::AppInst()const
@@ -100,9 +98,6 @@ int D3DApp::Run()
             if (!m_AppPaused)
             {
                 CalculateFrameStats();
-                ImGui_ImplDX11_NewFrame();
-                ImGui_ImplWin32_NewFrame();
-                ImGui::NewFrame();
                 UpdateScene(m_Timer.DeltaTime());
                 DrawScene();
             }
@@ -112,18 +107,22 @@ int D3DApp::Run()
             }
         }
     }
+
     return (int)msg.wParam;
 }
 
 bool D3DApp::Init()
 {
+    m_pMouse = std::make_unique<DirectX::Mouse>();
+    m_pKeyboard = std::make_unique<DirectX::Keyboard>();
+
     if (!InitMainWindow())
         return false;
 
-    if (!InitDirect3D())
+    if (!InitDirect2D())
         return false;
 
-    if (!InitImGui())
+    if (!InitDirect3D())
         return false;
 
     return true;
@@ -142,15 +141,14 @@ void D3DApp::OnResize()
         assert(m_pSwapChain1);
     }
 
-    //释放渲染管线输出用到的相关资源
-     // 释放渲染管线输出用到的相关资源
+    // 释放渲染管线输出用到的相关资源
     m_pRenderTargetView.Reset();
     m_pDepthStencilView.Reset();
     m_pDepthStencilBuffer.Reset();
 
     // 重设交换链并且重新创建渲染目标视图
     ComPtr<ID3D11Texture2D> backBuffer;
-    HR(m_pSwapChain->ResizeBuffers(1, m_ClientWidth, m_ClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+    HR(m_pSwapChain->ResizeBuffers(1, m_ClientWidth, m_ClientHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));	// 注意此处DXGI_FORMAT_B8G8R8A8_UNORM
     HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
     HR(m_pd3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
 
@@ -168,7 +166,7 @@ void D3DApp::OnResize()
     depthStencilDesc.ArraySize = 1;
     depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-    // 要使用 4X MSAA? --需要给交换链设置MASS参数
+    // 要使用 4X MSAA?
     if (m_Enable4xMsaa)
     {
         depthStencilDesc.SampleDesc.Count = 4;
@@ -179,7 +177,6 @@ void D3DApp::OnResize()
         depthStencilDesc.SampleDesc.Count = 1;
         depthStencilDesc.SampleDesc.Quality = 0;
     }
-
 
 
     depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -204,13 +201,16 @@ void D3DApp::OnResize()
     m_ScreenViewport.MaxDepth = 1.0f;
 
     m_pd3dImmediateContext->RSSetViewports(1, &m_ScreenViewport);
+
+    // 设置调试对象名
+    D3D11SetDebugObjectName(m_pDepthStencilBuffer.Get(), "DepthStencilBuffer");
+    D3D11SetDebugObjectName(m_pDepthStencilView.Get(), "DepthStencilView");
+    D3D11SetDebugObjectName(m_pRenderTargetView.Get(), "BackBufferRTV[0]");
+
 }
 
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (ImGui_ImplWin32_WndProcHandler(m_hMainWnd, msg, wParam, lParam))
-        return true;
-    
     switch (msg)
     {
         // WM_ACTIVATE is sent when the window is activated or deactivated.  
@@ -319,15 +319,35 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
         return 0;
 
+        // 监测这些键盘/鼠标事件
+    case WM_INPUT:
+
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
-        return 0;
+    case WM_XBUTTONDOWN:
+
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
-        return 0;
+    case WM_XBUTTONUP:
+
+    case WM_MOUSEWHEEL:
+    case WM_MOUSEHOVER:
     case WM_MOUSEMOVE:
+        m_pMouse->ProcessMessage(msg, wParam, lParam);
+        return 0;
+
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        m_pKeyboard->ProcessMessage(msg, wParam, lParam);
+        return 0;
+
+    case WM_ACTIVATEAPP:
+        m_pMouse->ProcessMessage(msg, wParam, lParam);
+        m_pKeyboard->ProcessMessage(msg, wParam, lParam);
         return 0;
     }
 
@@ -375,12 +395,21 @@ bool D3DApp::InitMainWindow()
     return true;
 }
 
+bool D3DApp::InitDirect2D()
+{
+    HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, m_pd2dFactory.GetAddressOf()));
+    HR(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(m_pdwriteFactory.GetAddressOf())));
+
+    return true;
+}
+
 bool D3DApp::InitDirect3D()
 {
     HRESULT hr = S_OK;
 
     // 创建D3D设备 和 D3D设备上下文
-    UINT createDeviceFlags = 0;
+    UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;	// Direct2D需要支持BGRA格式
 #if defined(DEBUG) || defined(_DEBUG)  
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -435,7 +464,7 @@ bool D3DApp::InitDirect3D()
 
     // 检测 MSAA支持的质量等级
     m_pd3dDevice->CheckMultisampleQualityLevels(
-        DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_4xMsaaQuality);
+        DXGI_FORMAT_B8G8R8A8_UNORM, 4, &m_4xMsaaQuality);	// 注意此处DXGI_FORMAT_B8G8R8A8_UNORM
     assert(m_4xMsaaQuality > 0);
 
 
@@ -443,8 +472,8 @@ bool D3DApp::InitDirect3D()
 
     ComPtr<IDXGIDevice> dxgiDevice = nullptr;
     ComPtr<IDXGIAdapter> dxgiAdapter = nullptr;
-    ComPtr<IDXGIFactory1> dxgiFactory1 = nullptr;   // D3D11.0(包含DXGI1.1)的接口类
-    ComPtr<IDXGIFactory2> dxgiFactory2 = nullptr;   // D3D11.1(包含DXGI1.2)特有的接口类
+    ComPtr<IDXGIFactory1> dxgiFactory1 = nullptr;	// D3D11.0(包含DXGI1.1)的接口类
+    ComPtr<IDXGIFactory2> dxgiFactory2 = nullptr;	// D3D11.1(包含DXGI1.2)特有的接口类
 
     // 为了正确创建 DXGI交换链，首先我们需要获取创建 D3D设备 的 DXGI工厂，否则会引发报错：
     // "IDXGIFactory::CreateSwapChain: This function is being called with a device from a different IDXGIFactory."
@@ -464,7 +493,7 @@ bool D3DApp::InitDirect3D()
         ZeroMemory(&sd, sizeof(sd));
         sd.Width = m_ClientWidth;
         sd.Height = m_ClientHeight;
-        sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;		// 注意此处DXGI_FORMAT_B8G8R8A8_UNORM
         // 是否开启4倍多重采样？
         if (m_Enable4xMsaa)
         {
@@ -500,7 +529,7 @@ bool D3DApp::InitDirect3D()
         sd.BufferDesc.Height = m_ClientHeight;
         sd.BufferDesc.RefreshRate.Numerator = 60;
         sd.BufferDesc.RefreshRate.Denominator = 1;
-        sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;	// 注意此处DXGI_FORMAT_B8G8R8A8_UNORM
         sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
         sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
         // 是否开启4倍多重采样？
@@ -523,8 +552,6 @@ bool D3DApp::InitDirect3D()
         HR(dxgiFactory1->CreateSwapChain(m_pd3dDevice.Get(), &sd, m_pSwapChain.GetAddressOf()));
     }
 
-
-
     // 可以禁止alt+enter全屏
     dxgiFactory1->MakeWindowAssociation(m_hMainWnd, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES);
 
@@ -538,24 +565,10 @@ bool D3DApp::InitDirect3D()
 
     return true;
 }
-bool D3DApp::InitImGui()
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // 允许键盘控制
-    io.ConfigWindowsMoveFromTitleBarOnly = true;              // 仅允许标题拖动
 
-    // 设置Dear ImGui风格
-    ImGui::StyleColorsDark();
 
-    // 设置平台/渲染器后端
-    ImGui_ImplWin32_Init(m_hMainWnd);
-    ImGui_ImplDX11_Init(m_pd3dDevice.Get(), m_pd3dImmediateContext.Get());
 
-    return true;
 
-}
 void D3DApp::CalculateFrameStats()
 {
     // 该代码计算每秒帧速，并计算每一帧渲染需要的时间，显示在窗口标题
@@ -581,4 +594,3 @@ void D3DApp::CalculateFrameStats()
         timeElapsed += 1.0f;
     }
 }
-
