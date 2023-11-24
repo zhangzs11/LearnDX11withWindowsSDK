@@ -26,7 +26,7 @@ namespace Geometry
 
 	//创建球体网络数据，level和slices越大，精度越高
 	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateSphere(float radius = 1.0f, UINT levels = 20, UINT slices = 20, 
+	MeshData<VertexType, IndexType> CreateSphere(float radius = 2.0f, UINT levels = 20, UINT slices = 20, 
 												 const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	//创建立方体网格数据
 	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
