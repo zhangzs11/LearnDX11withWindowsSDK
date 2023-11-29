@@ -1,5 +1,6 @@
 #include "CpuTimer.h"
 #include <windows.h>
+
 CpuTimer::CpuTimer()
 {
     __int64 countsPerSec{};
@@ -7,14 +8,13 @@ CpuTimer::CpuTimer()
     m_SecondsPerCount = 1.0 / (double)countsPerSec;
 }
 
-
 float CpuTimer::TotalTime()const
 {
-    // 如果调用了Stop()，暂停中的这段时间我们不需要计入。此外
-    // m_StopTime - m_BaseTime可能会包含之前的暂停时间，为
-    // 此我们可以从m_StopTime减去之前累积的暂停的时间
+    // If Stop() is called and it's stopped, we don't need to include the time after stopping.
+    // (m_StopTime - m_BaseTime) may include the time before it was previously stopped.
+    // Thus, we can subtract the previously accumulated paused time from m_StopTime.
     //
-    //                     |<-- 暂停的时间 -->|
+    //                     |<-- Paused Time -->|
     // ----*---------------*-----------------*------------*------------*------> time
     //  m_BaseTime       m_StopTime        startTime     m_StopTime    m_CurrTime
 
@@ -23,12 +23,12 @@ float CpuTimer::TotalTime()const
         return (float)(((m_StopTime - m_PausedTime) - m_BaseTime) * m_SecondsPerCount);
     }
 
-    // m_CurrTime - m_BaseTime包含暂停时间，但我们不想将它计入。
-    // 为此我们可以从m_CurrTime减去之前累积的暂停的时间
+    // (m_CurrTime - m_BaseTime) is the time excluding the paused time, which we don't want to include.
+    // Thus, we can subtract the previously accumulated paused time from m_CurrTime.
     //
     //  (m_CurrTime - m_PausedTime) - m_BaseTime 
     //
-    //                     |<-- 暂停的时间 -->|
+    //                     |<-- Paused Time -->|
     // ----*---------------*-----------------*------------*------> time
     //  m_BaseTime       m_StopTime        startTime     m_CurrTime
 
@@ -51,7 +51,7 @@ void CpuTimer::Reset()
     m_BaseTime = currTime;
     m_PrevTime = currTime;
     m_StopTime = 0;
-    m_PausedTime = 0;   // 涉及到多次Reset的话需要将其归0
+    m_PausedTime = 0;   // Resetting the paused time to 0 as it's related to Reset
     m_Stopped = false;
 }
 
@@ -60,8 +60,7 @@ void CpuTimer::Start()
     __int64 startTime{};
     QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
 
-
-    // 累积暂停开始到暂停结束的这段时间
+    // Resumes from the previous stop, thus we add the paused duration.
     //
     //                     |<-------d------->|
     // ----*---------------*-----------------*------------> time
@@ -101,7 +100,7 @@ void CpuTimer::Tick()
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
     m_CurrTime = currTime;
 
-    // 当前Tick与上一Tick的帧间隔
+    // Frame time between the current Tick and the previous Tick
     m_DeltaTime = (m_CurrTime - m_PrevTime) * m_SecondsPerCount;
 
     m_PrevTime = m_CurrTime;

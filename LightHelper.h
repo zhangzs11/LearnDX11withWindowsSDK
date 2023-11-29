@@ -4,8 +4,7 @@
 #include <cstring>
 #include <DirectXMath.h>
 
-
-// 方向光
+// Directional light
 struct DirectionalLight
 {
     DirectionalLight() = default;
@@ -24,10 +23,10 @@ struct DirectionalLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
     DirectX::XMFLOAT3 direction;
-    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
+    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
 };
 
-// 点光
+// Point light
 struct PointLight
 {
     PointLight() = default;
@@ -46,16 +45,16 @@ struct PointLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
 
-    // 打包成4D向量: (position, range)
+    // Packing in 4D vector: (position, range)
     DirectX::XMFLOAT3 position;
     float range;
 
-    // 打包成4D向量: (A0, A1, A2, pad)
+    // Packing in 4D vector: (A0, A1, A2, pad)
     DirectX::XMFLOAT3 att;
-    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
+    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
 };
 
-// 聚光灯
+// Spot light
 struct SpotLight
 {
     SpotLight() = default;
@@ -76,20 +75,20 @@ struct SpotLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
 
-    // 打包成4D向量: (position, range)
+    // Packing in 4D vector: (position, range)
     DirectX::XMFLOAT3 position;
     float range;
 
-    // 打包成4D向量: (direction, spot)
+    // Packing in 4D vector: (direction, spot)
     DirectX::XMFLOAT3 direction;
     float spot;
 
-    // 打包成4D向量: (att, pad)
+    // Packing in 4D vector: (att, pad)
     DirectX::XMFLOAT3 att;
-    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
+    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
 };
 
-// 物体表面材质
+// Material properties
 struct Material
 {
     Material() = default;
@@ -106,7 +105,7 @@ struct Material
 
     DirectX::XMFLOAT4 ambient;
     DirectX::XMFLOAT4 diffuse;
-    DirectX::XMFLOAT4 specular; // w = 镜面反射强度
+    DirectX::XMFLOAT4 specular; // w = Specular power
     DirectX::XMFLOAT4 reflect;
 };
 

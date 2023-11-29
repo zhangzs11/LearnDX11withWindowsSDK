@@ -78,8 +78,8 @@
   <ItemGroup>
     <None Include="Triangle.hlsli" />
     <None Include="Cube.hlsli" />
-    <None Include="Light.hlsli" />
     <None Include="LightHelper.hlsli" />
+    <None Include="Light.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Triangle_VS.hlsl" />

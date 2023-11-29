@@ -1,4 +1,4 @@
-// ¶¨ÒåÁËÒ»Ð©¶¥µã½á¹¹ÌåºÍÊäÈë²¼¾Ö
+ï»¿// å®šä¹‰äº†ä¸€äº›é¡¶ç‚¹ç»“æž„ä½“å’Œè¾“å…¥å¸ƒå±€
 
 #ifndef VERTEX_H
 #define VERTEX_H
@@ -16,7 +16,7 @@ struct VertexPos
 	VertexPos(VertexPos&&) = default;
 	VertexPos& operator=(VertexPos&&) = default;
 
-	constexpr VertexPos(const DirectX::XMFLOAT3& _pos):pos(_pos){}
+	constexpr VertexPos(const DirectX::XMFLOAT3& _pos) :pos(_pos) {}
 
 	DirectX::XMFLOAT3 pos;
 	static const D3D11_INPUT_ELEMENT_DESC inputLayout[1];
@@ -31,7 +31,7 @@ struct VertexPosColor
 	VertexPosColor(VertexPosColor&&) = default;
 	VertexPosColor& operator=(VertexPosColor&&) = default;
 
-	constexpr VertexPosColor(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT4& _color) :pos(_pos) , color(_color){}
+	constexpr VertexPosColor(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT4& _color) :pos(_pos), color(_color) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT4 color;
@@ -47,7 +47,7 @@ struct VertexPosTex
 	VertexPosTex(VertexPosTex&&) = default;
 	VertexPosTex& operator=(VertexPosTex&&) = default;
 
-	constexpr VertexPosTex(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT2& _tex) :pos(_pos) , tex(_tex){}
+	constexpr VertexPosTex(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT2& _tex) :pos(_pos), tex(_tex) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT2 tex;
@@ -63,7 +63,7 @@ struct VertexPosSize
 	VertexPosSize(VertexPosSize&&) = default;
 	VertexPosSize& operator=(VertexPosSize&&) = default;
 
-	constexpr VertexPosSize(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT2& _size) :pos(_pos) ,size(_size){}
+	constexpr VertexPosSize(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT2& _size) :pos(_pos), size(_size) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT2 size;
@@ -80,7 +80,7 @@ struct VertexPosNormalColor
 	VertexPosNormalColor& operator=(VertexPosNormalColor&&) = default;
 
 	constexpr VertexPosNormalColor(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT3& _normal, const DirectX::XMFLOAT4& _color) :
-		pos(_pos) , normal(_normal), color(_color){}
+		pos(_pos), normal(_normal), color(_color) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 normal;
@@ -98,7 +98,7 @@ struct VertexPosNormalTex
 	VertexPosNormalTex& operator=(VertexPosNormalTex&&) = default;
 
 	constexpr VertexPosNormalTex(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT3& _normal, const DirectX::XMFLOAT2& _tex) :
-		pos(_pos) , normal(_normal) , tex(_tex){}
+		pos(_pos), normal(_normal), tex(_tex) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 normal;
@@ -116,8 +116,8 @@ struct VertexPosNormalTangentTex
 	VertexPosNormalTangentTex& operator=(VertexPosNormalTangentTex&&) = default;
 
 	constexpr VertexPosNormalTangentTex(const DirectX::XMFLOAT3& _pos, const DirectX::XMFLOAT3& _normal,
-									   const DirectX::XMFLOAT4& _tangent, const DirectX::XMFLOAT2& _tex) :
-		pos(_pos) , normal(_normal) , tangent(_tangent) , tex(_tex){}
+		const DirectX::XMFLOAT4& _tangent, const DirectX::XMFLOAT2& _tex) :
+		pos(_pos), normal(_normal), tangent(_tangent), tex(_tex) {}
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 normal;

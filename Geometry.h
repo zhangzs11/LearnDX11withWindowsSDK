@@ -1,4 +1,4 @@
-//Éú³É³£¼ûµÄ¼¸ºÎÌåÍø¸ñÄ£ĞÍ
+ï»¿//ç”Ÿæˆå¸¸è§çš„å‡ ä½•ä½“ç½‘æ ¼æ¨¡å‹
 #ifndef GEOMETRY_H_
 #define GEOMETRY_H_
 
@@ -10,71 +10,71 @@
 
 namespace Geometry
 {
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	struct MeshData
-	{
-		std::vector<VertexType> vertexVec; // ¶¥µãÊı×é
-		std::vector<IndexType> indexVec;   // Ë÷ÒıÊı×é
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    struct MeshData
+    {
+        std::vector<VertexType> vertexVec; // é¡¶ç‚¹æ•°ç»„
+        std::vector<IndexType> indexVec;   // ç´¢å¼•æ•°ç»„
 
-		MeshData()
-		{
-			//¼ìË÷Ë÷ÒıÀàĞÍµÄºÏ·¨ĞÔ
-			static_assert(sizeof(IndexType) == 2 || sizeof(IndexType) == 4, "The size of IndexType must be 2 bytes or 4 bytes!");
-			static_assert(std::is_unsigned<IndexType>::value, "IndexType must be unsigned integer!");
-		}
-	};
+        MeshData()
+        {
+            //æ£€ç´¢ç´¢å¼•ç±»å‹çš„åˆæ³•æ€§
+            static_assert(sizeof(IndexType) == 2 || sizeof(IndexType) == 4, "The size of IndexType must be 2 bytes or 4 bytes!");
+            static_assert(std::is_unsigned<IndexType>::value, "IndexType must be unsigned integer!");
+        }
+    };
 
-	//´´½¨ÇòÌåÍøÂçÊı¾İ£¬levelºÍslicesÔ½´ó£¬¾«¶ÈÔ½¸ß
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateSphere(float radius = 2.0f, UINT levels = 20, UINT slices = 20, 
-												 const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Á¢·½ÌåÍø¸ñÊı¾İ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateBox(float width = 2.0f, float height = 2.0f, float depth = 2.0f, 
-											  const DirectX::XMFLOAT4& color = {1.0f, 1.0f, 1.0f, 1.0f});
-	//´´½¨Ô²ÖùÌåÍø¸ñÊı¾İ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateCylinder(float radius = 1.0f, float height = 2.0f, UINT slices = 20, UINT stacks = 10,
-												   float texU = 1.0f, float texV = 1.0f, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ö»ÓĞÔ²ÖùÌå²àÃæµÄÍø¸ñÊı¾İ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateCylinderNoCap(float radius = 1.0f, float height = 2.0f, UINT slices = 20, UINT stacks = 10,
-														float texU = 1.0f, float texV = 1.0f, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ô²×¶ÌåÍø¸ñÊı¾İ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateCone(float radius = 1.0f, float height = 2.0f, UINT slices = 20,
-											   const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ö»ÓĞÔ²×¶Ìå²àÃæµÄÍø¸ñÊı¾İ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateConeNoCap(float radius = 1.0f, float height = 2.0f, UINT slices = 20,
-													const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ò»¸öÖ¸¶¨NDCÆÁÄ»ÇøÓòµÄÃæ£¬Ä¬ÈÏÈ«ÆÁ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> Create2DShow(const DirectX::XMFLOAT2& center, const DirectX::XMFLOAT2& scale, 
-												 const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> Create2DShow(float centerX = 0.0f, float centerY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, 
-												 const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ò»¸öÆ½Ãæ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreatePlane(const DirectX::XMFLOAT2& planeSize, const DirectX::XMFLOAT2& maxTexCoord = { 1.0f, 1.0f },
-												const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreatePlane(float width = 10.0f, float depth = 10.0f, float texU = 1.0f, float texV = 1.0f, 
-												const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
-	//´´½¨Ò»¸öµØĞÎ
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateTerrain(const DirectX::XMFLOAT2& terrainSize, 
-		const DirectX::XMUINT2& slices = { 10,10 }, const DirectX::XMFLOAT2& maxTexCoord = {1.0f, 1.0f},
-		const std::function<float(float, float)>& heightFunc = [](float x, float z) {return 0.0f; },
-		const std::function<DirectX::XMFLOAT3(float, float)>& normalFunc = [](float x, float z) {return DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f); },
-		const std::function<DirectX::XMFLOAT4(float, float)>& colorFunc = [](float x, float z) {return DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); });
-	template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
-	MeshData<VertexType, IndexType> CreateTerrain(float width=10.0f, float depth=10.0f, 
-		UINT slicesX=10, UINT slicesZ=10, float texU=1.0f, float texV=1.0f,
-		const std::function<float(float, float)>& heightFunc = [](float x, float z) {return 0.0f; },
-		const std::function<DirectX::XMFLOAT3(float, float)>& normalFunc = [](float x, float z) {return DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f); },
-		const std::function<DirectX::XMFLOAT4(float, float)>& colorFunc = [](float x, float z) {return DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); });
+    //åˆ›å»ºçƒä½“ç½‘ç»œæ•°æ®ï¼Œlevelå’Œslicesè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateSphere(float radius = 2.0f, UINT levels = 20, UINT slices = 20,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºç«‹æ–¹ä½“ç½‘æ ¼æ•°æ®
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateBox(float width = 2.0f, float height = 2.0f, float depth = 2.0f,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºåœ†æŸ±ä½“ç½‘æ ¼æ•°æ®
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateCylinder(float radius = 1.0f, float height = 2.0f, UINT slices = 20, UINT stacks = 10,
+        float texU = 1.0f, float texV = 1.0f, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºåªæœ‰åœ†æŸ±ä½“ä¾§é¢çš„ç½‘æ ¼æ•°æ®
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateCylinderNoCap(float radius = 1.0f, float height = 2.0f, UINT slices = 20, UINT stacks = 10,
+        float texU = 1.0f, float texV = 1.0f, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºåœ†é”¥ä½“ç½‘æ ¼æ•°æ®
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateCone(float radius = 1.0f, float height = 2.0f, UINT slices = 20,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºåªæœ‰åœ†é”¥ä½“ä¾§é¢çš„ç½‘æ ¼æ•°æ®
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateConeNoCap(float radius = 1.0f, float height = 2.0f, UINT slices = 20,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºä¸€ä¸ªæŒ‡å®šNDCå±å¹•åŒºåŸŸçš„é¢ï¼Œé»˜è®¤å…¨å±
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> Create2DShow(const DirectX::XMFLOAT2& center, const DirectX::XMFLOAT2& scale,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> Create2DShow(float centerX = 0.0f, float centerY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºä¸€ä¸ªå¹³é¢
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreatePlane(const DirectX::XMFLOAT2& planeSize, const DirectX::XMFLOAT2& maxTexCoord = { 1.0f, 1.0f },
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreatePlane(float width = 10.0f, float depth = 10.0f, float texU = 1.0f, float texV = 1.0f,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    //åˆ›å»ºä¸€ä¸ªåœ°å½¢
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateTerrain(const DirectX::XMFLOAT2& terrainSize,
+        const DirectX::XMUINT2& slices = { 10,10 }, const DirectX::XMFLOAT2& maxTexCoord = { 1.0f, 1.0f },
+        const std::function<float(float, float)>& heightFunc = [](float x, float z) {return 0.0f; },
+        const std::function<DirectX::XMFLOAT3(float, float)>& normalFunc = [](float x, float z) {return DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f); },
+        const std::function<DirectX::XMFLOAT4(float, float)>& colorFunc = [](float x, float z) {return DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); });
+    template<class VertexType = VertexPosNormalTex, class IndexType = DWORD>
+    MeshData<VertexType, IndexType> CreateTerrain(float width = 10.0f, float depth = 10.0f,
+        UINT slicesX = 10, UINT slicesZ = 10, float texU = 1.0f, float texV = 1.0f,
+        const std::function<float(float, float)>& heightFunc = [](float x, float z) {return 0.0f; },
+        const std::function<DirectX::XMFLOAT3(float, float)>& normalFunc = [](float x, float z) {return DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f); },
+        const std::function<DirectX::XMFLOAT4(float, float)>& colorFunc = [](float x, float z) {return DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); });
 }
 
 
@@ -84,7 +84,7 @@ namespace Geometry
     namespace Internal
     {
         //
-        // ÒÔÏÂ½á¹¹ÌåºÍº¯Êı½ö¹©ÄÚ²¿ÊµÏÖÊ¹ÓÃ
+        // ä»¥ä¸‹ç»“æ„ä½“å’Œå‡½æ•°ä»…ä¾›å†…éƒ¨å®ç°ä½¿ç”¨
         //
         struct VertexData
         {
@@ -95,11 +95,11 @@ namespace Geometry
             DirectX::XMFLOAT2 tex;
         };
 
-        // ¸ù¾İÄ¿±ê¶¥µãÀàĞÍÑ¡ÔñĞÔ½«Êı¾İ²åÈë
+        // æ ¹æ®ç›®æ ‡é¡¶ç‚¹ç±»å‹é€‰æ‹©æ€§å°†æ•°æ®æ’å…¥
         template<class VertexType>
         inline void InsertVertexElement(VertexType& vertexDst, const VertexData& vertexSrc)
         {
-            static std::string semanticName; // ÓïÒåÃû
+            static std::string semanticName; // è¯­ä¹‰å
             static const std::map < std::string, std::pair<size_t, size_t>> semanticSizeMap = {
                 {"POSITION", std::pair<size_t, size_t>(0, 12)},
                 {"NORMAL", std::pair<size_t, size_t>(12, 24)},
@@ -122,11 +122,11 @@ namespace Geometry
     }
 
     //
-    // ¼¸ºÎÌå·½·¨µÄÊµÏÖ
+    // å‡ ä½•ä½“æ–¹æ³•çš„å®ç°
     //
 
 
-    //´´½¨ÇòÌåÍø¸ñÊı¾İ£¬levelºÍslicesÔ½´ó£¬¾«¶ÈÔ½¸ß
+    //åˆ›å»ºçƒä½“ç½‘æ ¼æ•°æ®ï¼Œlevelå’Œslicesè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> CreateSphere(float radius, UINT levels, UINT slices, const DirectX::XMFLOAT4& color)
     {
@@ -146,21 +146,21 @@ namespace Geometry
         float per_theta = XM_2PI / slices;
         float x, y, z;
 
-        // ·ÅÈë¶¥¶Ëµã
+        // æ”¾å…¥é¡¶ç«¯ç‚¹
         vertexData = { XMFLOAT3(0.0f, radius, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(0.0f, 0.0f) };
         Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
 
         for (UINT i = 1; i < levels; ++i)
         {
             phi = per_phi * i;
-            // ĞèÒªslices + 1¸ö¶¥µãÊÇÒòÎª ÆğµãºÍÖÕµãĞèÎªÍ¬Ò»µã£¬µ«ÎÆÀí×ø±êÖµ²»Ò»ÖÂ
+            // éœ€è¦slices + 1ä¸ªé¡¶ç‚¹æ˜¯å› ä¸º èµ·ç‚¹å’Œç»ˆç‚¹éœ€ä¸ºåŒä¸€ç‚¹ï¼Œä½†çº¹ç†åæ ‡å€¼ä¸ä¸€è‡´
             for (UINT j = 0; j <= slices; ++j)
             {
                 theta = per_theta * j;
                 x = radius * sinf(phi) * cosf(theta);
                 y = radius * cosf(phi);
                 z = radius * sinf(phi) * sinf(theta);
-                // ¼ÆËã³ö¾Ö²¿×ø±ê¡¢·¨ÏòÁ¿¡¢TangentÏòÁ¿ºÍÎÆÀí×ø±ê
+                // è®¡ç®—å‡ºå±€éƒ¨åæ ‡ã€æ³•å‘é‡ã€Tangentå‘é‡å’Œçº¹ç†åæ ‡
                 XMFLOAT3 pos = XMFLOAT3(x, y, z), normal;
                 XMStoreFloat3(&normal, XMVector3Normalize(XMLoadFloat3(&pos)));
 
@@ -169,13 +169,13 @@ namespace Geometry
             }
         }
 
-        // ·ÅÈëµ×¶Ëµã
+        // æ”¾å…¥åº•ç«¯ç‚¹
         vertexData = { XMFLOAT3(0.0f, -radius, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f),
             XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(0.0f, 1.0f) };
         Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
 
 
-        // ·ÅÈëË÷Òı
+        // æ”¾å…¥ç´¢å¼•
         if (levels > 1)
         {
             for (UINT j = 1; j <= slices; ++j)
@@ -201,7 +201,7 @@ namespace Geometry
             }
         }
 
-        // Öğ½¥·ÅÈëË÷Òı
+        // é€æ¸æ”¾å…¥ç´¢å¼•
         if (levels > 1)
         {
             for (UINT j = 1; j <= slices; ++j)
@@ -216,7 +216,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Á¢·½ÌåÍø¸ñÊı¾İ
+    //åˆ›å»ºç«‹æ–¹ä½“ç½‘æ ¼æ•°æ®
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> CreateBox(float width, float height, float depth, const DirectX::XMFLOAT4& color)
     {
@@ -229,32 +229,32 @@ namespace Geometry
         Internal::VertexData vertexDataArr[24];
         float w2 = width / 2, h2 = height / 2, d2 = depth / 2;
 
-        // ÓÒÃæ(+XÃæ)
+        // å³é¢(+Xé¢)
         vertexDataArr[0].pos = XMFLOAT3(w2, -h2, -d2);
         vertexDataArr[1].pos = XMFLOAT3(w2, h2, -d2);
         vertexDataArr[2].pos = XMFLOAT3(w2, h2, d2);
         vertexDataArr[3].pos = XMFLOAT3(w2, -h2, d2);
-        // ×óÃæ(-XÃæ)
+        // å·¦é¢(-Xé¢)
         vertexDataArr[4].pos = XMFLOAT3(-w2, -h2, d2);
         vertexDataArr[5].pos = XMFLOAT3(-w2, h2, d2);
         vertexDataArr[6].pos = XMFLOAT3(-w2, h2, -d2);
         vertexDataArr[7].pos = XMFLOAT3(-w2, -h2, -d2);
-        // ¶¥Ãæ(+YÃæ)
+        // é¡¶é¢(+Yé¢)
         vertexDataArr[8].pos = XMFLOAT3(-w2, h2, -d2);
         vertexDataArr[9].pos = XMFLOAT3(-w2, h2, d2);
         vertexDataArr[10].pos = XMFLOAT3(w2, h2, d2);
         vertexDataArr[11].pos = XMFLOAT3(w2, h2, -d2);
-        // µ×Ãæ(-YÃæ)
+        // åº•é¢(-Yé¢)
         vertexDataArr[12].pos = XMFLOAT3(w2, -h2, -d2);
         vertexDataArr[13].pos = XMFLOAT3(w2, -h2, d2);
         vertexDataArr[14].pos = XMFLOAT3(-w2, -h2, d2);
         vertexDataArr[15].pos = XMFLOAT3(-w2, -h2, -d2);
-        // ±³Ãæ(+ZÃæ)
+        // èƒŒé¢(+Zé¢)
         vertexDataArr[16].pos = XMFLOAT3(w2, -h2, d2);
         vertexDataArr[17].pos = XMFLOAT3(w2, h2, d2);
         vertexDataArr[18].pos = XMFLOAT3(-w2, h2, d2);
         vertexDataArr[19].pos = XMFLOAT3(-w2, -h2, d2);
-        // ÕıÃæ(-ZÃæ)
+        // æ­£é¢(-Zé¢)
         vertexDataArr[20].pos = XMFLOAT3(-w2, -h2, -d2);
         vertexDataArr[21].pos = XMFLOAT3(-w2, h2, -d2);
         vertexDataArr[22].pos = XMFLOAT3(w2, h2, -d2);
@@ -262,27 +262,27 @@ namespace Geometry
 
         for (UINT i = 0; i < 4; ++i)
         {
-            // ÓÒÃæ(+XÃæ)
+            // å³é¢(+Xé¢)
             vertexDataArr[i].normal = XMFLOAT3(1.0f, 0.0f, 0.0f);
             vertexDataArr[i].tangent = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
             vertexDataArr[i].color = color;
-            // ×óÃæ(-XÃæ)
+            // å·¦é¢(-Xé¢)
             vertexDataArr[i + 4].normal = XMFLOAT3(-1.0f, 0.0f, 0.0f);
             vertexDataArr[i + 4].tangent = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
             vertexDataArr[i + 4].color = color;
-            // ¶¥Ãæ(+YÃæ)
+            // é¡¶é¢(+Yé¢)
             vertexDataArr[i + 8].normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
             vertexDataArr[i + 8].tangent = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
             vertexDataArr[i + 8].color = color;
-            // µ×Ãæ(-YÃæ)
+            // åº•é¢(-Yé¢)
             vertexDataArr[i + 12].normal = XMFLOAT3(0.0f, -1.0f, 0.0f);
             vertexDataArr[i + 12].tangent = XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f);
             vertexDataArr[i + 12].color = color;
-            // ±³Ãæ(+ZÃæ)
+            // èƒŒé¢(+Zé¢)
             vertexDataArr[i + 16].normal = XMFLOAT3(0.0f, 0.0f, 1.0f);
             vertexDataArr[i + 16].tangent = XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f);
             vertexDataArr[i + 16].color = color;
-            // ÕıÃæ(-ZÃæ)
+            // æ­£é¢(-Zé¢)
             vertexDataArr[i + 20].normal = XMFLOAT3(0.0f, 0.0f, -1.0f);
             vertexDataArr[i + 20].tangent = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
             vertexDataArr[i + 20].color = color;
@@ -302,18 +302,18 @@ namespace Geometry
         }
 
         meshData.indexVec = {
-            0, 1, 2, 2, 3, 0,		// ÓÒÃæ(+XÃæ)
-            4, 5, 6, 6, 7, 4,		// ×óÃæ(-XÃæ)
-            8, 9, 10, 10, 11, 8,	// ¶¥Ãæ(+YÃæ)
-            12, 13, 14, 14, 15, 12,	// µ×Ãæ(-YÃæ)
-            16, 17, 18, 18, 19, 16, // ±³Ãæ(+ZÃæ)
-            20, 21, 22, 22, 23, 20	// ÕıÃæ(-ZÃæ)
+            0, 1, 2, 2, 3, 0,		// å³é¢(+Xé¢)
+            4, 5, 6, 6, 7, 4,		// å·¦é¢(-Xé¢)
+            8, 9, 10, 10, 11, 8,	// é¡¶é¢(+Yé¢)
+            12, 13, 14, 14, 15, 12,	// åº•é¢(-Yé¢)
+            16, 17, 18, 18, 19, 16, // èƒŒé¢(+Zé¢)
+            20, 21, 22, 22, 23, 20	// æ­£é¢(-Zé¢)
         };
 
         return meshData;
     }
 
-    //´´½¨Ô²ÖùÌåÍø¸ñÊı¾İ£¬slicesÔ½´ó£¬¾«¶ÈÔ½¸ß
+    //åˆ›å»ºåœ†æŸ±ä½“ç½‘æ ¼æ•°æ®ï¼Œslicesè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> CreateCylinder(float radius, float height, UINT slices, UINT stacks,
         float texU, float texV, const DirectX::XMFLOAT4& color)
@@ -334,12 +334,12 @@ namespace Geometry
         IndexType offset = vIndex;
         Internal::VertexData vertexData;
 
-        // ·ÅÈë¶¥¶ËÔ²ĞÄ
+        // æ”¾å…¥é¡¶ç«¯åœ†å¿ƒ
         vertexData = { XMFLOAT3(0.0f, h2, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f),
             XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(0.5f, 0.5f) };
         Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
 
-        // ·ÅÈë¶¥¶ËÔ²ÉÏ¸÷µã
+        // æ”¾å…¥é¡¶ç«¯åœ†ä¸Šå„ç‚¹
         for (UINT i = 0; i <= slices; ++i)
         {
             theta = i * per_theta;
@@ -350,12 +350,12 @@ namespace Geometry
             Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
         }
 
-        // ·ÅÈëµ×¶ËÔ²ĞÄ
+        // æ”¾å…¥åº•ç«¯åœ†å¿ƒ
         vertexData = { XMFLOAT3(0.0f, -h2, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f),
             XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(0.5f, 0.5f) };
         Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
 
-        // ·ÅÈëµ×²¿Ô²ÉÏ¸÷µã
+        // æ”¾å…¥åº•éƒ¨åœ†ä¸Šå„ç‚¹
         for (UINT i = 0; i <= slices; ++i)
         {
             theta = i * per_theta;
@@ -368,7 +368,7 @@ namespace Geometry
 
 
 
-        // ·ÅÈë¶¥²¿Èı½ÇĞÎË÷Òı
+        // æ”¾å…¥é¡¶éƒ¨ä¸‰è§’å½¢ç´¢å¼•
         for (UINT i = 1; i <= slices; ++i)
         {
             meshData.indexVec[iIndex++] = offset;
@@ -376,7 +376,7 @@ namespace Geometry
             meshData.indexVec[iIndex++] = offset + i;
         }
 
-        // ·ÅÈëµ×²¿Èı½ÇĞÎË÷Òı
+        // æ”¾å…¥åº•éƒ¨ä¸‰è§’å½¢ç´¢å¼•
         offset += slices + 2;
         for (UINT i = 1; i <= slices; ++i)
         {
@@ -388,7 +388,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Ö»ÓĞÔ²ÖùÌå²àÃæµÄÍø¸ñÊı¾İ£¬sliceÔ½´ó£¬¾«¶ÈÔ½¸ß
+    //åˆ›å»ºåªæœ‰åœ†æŸ±ä½“ä¾§é¢çš„ç½‘æ ¼æ•°æ®ï¼Œsliceè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> CreateCylinderNoCap(float radius, float height, UINT slices, UINT stacks,
         float texU, float texV, const DirectX::XMFLOAT4& color)
@@ -408,12 +408,12 @@ namespace Geometry
 
         Internal::VertexData vertexData;
 
-        // ×Ôµ×ÏòÉÏÆÌÉè²àÃæ¶Ëµã
+        // è‡ªåº•å‘ä¸Šé“ºè®¾ä¾§é¢ç«¯ç‚¹
         UINT vIndex = 0;
         for (UINT i = 0; i < stacks + 1; ++i)
         {
             float y = -h2 + i * stackHeight;
-            // µ±Ç°²ã¶¥µã
+            // å½“å‰å±‚é¡¶ç‚¹
             for (UINT j = 0; j <= slices; ++j)
             {
                 theta = j * per_theta;
@@ -425,7 +425,7 @@ namespace Geometry
             }
         }
 
-        // ·ÅÈëË÷Òı
+        // æ”¾å…¥ç´¢å¼•
         UINT iIndex = 0;
         for (UINT i = 0; i < stacks; ++i)
         {
@@ -447,7 +447,7 @@ namespace Geometry
     }
 
 
-    //´´½¨Ô²×¶ÌåÍø¸ñÊı¾İ£¬sliceÔ½´ó£¬¾«¶ÈÔ½¸ß
+    //åˆ›å»ºåœ†é”¥ä½“ç½‘æ ¼æ•°æ®ï¼Œsliceè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
     template<class VertexType, class IndexType>
     MeshData<VertexType, IndexType> CreateCone(float radius, float height, UINT slices, const DirectX::XMFLOAT4& color)
     {
@@ -466,7 +466,7 @@ namespace Geometry
         UINT vIndex = 2 * slices;
         Internal::VertexData vertexData;
 
-        // ·ÅÈëÔ²×¶µ×Ãæ¶¥µã
+        // æ”¾å…¥åœ†é”¥åº•é¢é¡¶ç‚¹
         for (UINT i = 0; i < slices; ++i)
         {
             theta = i * per_theta;
@@ -474,12 +474,12 @@ namespace Geometry
                 XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(cosf(theta) / 2 + 0.5f, sinf(theta) / 2 + 0.5f) };
             Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
         }
-        // ·ÅÈëÔ²×¶µ×ÃæÔ²ĞÄ
+        // æ”¾å…¥åœ†é”¥åº•é¢åœ†å¿ƒ
         vertexData = { XMFLOAT3(0.0f, -h2, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f),
                 XMFLOAT4(-1.0f, 0.0f, 0.0f, 1.0f), color, XMFLOAT2(0.5f, 0.5f) };
         Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
 
-        // ·ÅÈëË÷Òı
+        // æ”¾å…¥ç´¢å¼•
         UINT offset = 2 * slices;
         for (UINT i = 0; i < slices; ++i)
         {
@@ -491,7 +491,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Ö»ÓĞÔ²×¶Ìå²àÃæÍø¸ñÊı¾İ£¬sliceÔ½´ó£¬¾«¶ÈÔ½¸ß
+    //åˆ›å»ºåªæœ‰åœ†é”¥ä½“ä¾§é¢ç½‘æ ¼æ•°æ®ï¼Œsliceè¶Šå¤§ï¼Œç²¾åº¦è¶Šé«˜
     template<class VertexType, class IndexType>
     MeshData<VertexType, IndexType> CreateConeNoCap(float radius, float height, UINT slices, const DirectX::XMFLOAT4& color)
     {
@@ -511,7 +511,7 @@ namespace Geometry
         UINT vIndex = 0;
         Internal::VertexData vertexData;
 
-        // ·ÅÈëÔ²×¶¼â¶Ë¶¥µã(Ã¿¸ö¶¥µãÎ»ÖÃÏàÍ¬£¬µ«°üº¬²»Í¬µÄ·¨ÏòÁ¿ºÍÇĞÏßÏòÁ¿)
+        // æ”¾å…¥åœ†é”¥å°–ç«¯é¡¶ç‚¹(æ¯ä¸ªé¡¶ç‚¹ä½ç½®ç›¸åŒï¼Œä½†åŒ…å«ä¸åŒçš„æ³•å‘é‡å’Œåˆ‡çº¿å‘é‡)
         for (UINT i = 0; i < slices; ++i)
         {
             theta = i * per_theta + per_theta / 2;
@@ -520,7 +520,7 @@ namespace Geometry
             Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
         }
 
-        // ·ÅÈëÔ²×¶²àÃæµ×²¿¶¥µã
+        // æ”¾å…¥åœ†é”¥ä¾§é¢åº•éƒ¨é¡¶ç‚¹
         for (UINT i = 0; i < slices; ++i)
         {
             theta = i * per_theta;
@@ -529,7 +529,7 @@ namespace Geometry
             Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
         }
 
-        // ·ÅÈëË÷Òı
+        // æ”¾å…¥ç´¢å¼•
         for (UINT i = 0; i < slices; ++i)
         {
             meshData.indexVec[iIndex++] = i;
@@ -540,7 +540,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Ò»¸öÖ¸¶¨NDCÆÁÄ»ÇøÓòµÄÃæ£¨Ä¬ÈÏÈ«ÆÁ£©
+    //åˆ›å»ºä¸€ä¸ªæŒ‡å®šNDCå±å¹•åŒºåŸŸçš„é¢ï¼ˆé»˜è®¤å…¨å±ï¼‰
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> Create2DShow(const DirectX::XMFLOAT2& center, const DirectX::XMFLOAT2& scale, const DirectX::XMFLOAT4& color)
     {
@@ -578,7 +578,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Ò»¸öÆ½Ãæ
+    //åˆ›å»ºä¸€ä¸ªå¹³é¢
     template<class VertexType, class IndexType>
     inline MeshData<VertexType, IndexType> CreatePlane(const DirectX::XMFLOAT2& planeSize,
         const DirectX::XMFLOAT2& maxTexCoord, const DirectX::XMFLOAT4& color)
@@ -617,7 +617,7 @@ namespace Geometry
         return meshData;
     }
 
-    //´´½¨Ò»¸öµØĞÎ
+    //åˆ›å»ºä¸€ä¸ªåœ°å½¢
     template<class VertexType, class IndexType>
     MeshData<VertexType, IndexType> CreateTerrain(const DirectX::XMFLOAT2& terrainSize, const DirectX::XMUINT2& slices,
         const DirectX::XMFLOAT2& maxTexCoord, const std::function<float(float, float)>& heightFunc,
@@ -656,7 +656,7 @@ namespace Geometry
 
         XMFLOAT3 normal;
         XMFLOAT4 tangent;
-        // ´´½¨Íø¸ñ¶¥µã
+        // åˆ›å»ºç½‘æ ¼é¡¶ç‚¹
         //  __ __
         // | /| /|
         // |/_|/_|
@@ -668,10 +668,10 @@ namespace Geometry
             for (UINT x = 0; x <= slicesX; ++x)
             {
                 posX = leftBottomX + x * sliceWidth;
-                // ¼ÆËã·¨ÏòÁ¿²¢¹éÒ»»¯
+                // è®¡ç®—æ³•å‘é‡å¹¶å½’ä¸€åŒ–
                 normal = normalFunc(posX, posZ);
                 XMStoreFloat3(&normal, XMVector3Normalize(XMLoadFloat3(&normal)));
-                // ¼ÆËã·¨Æ½ÃæÓëz=posZÆ½Ãæ¹¹³ÉµÄÖ±Ïßµ¥Î»ÇĞÏòÁ¿£¬Î¬³Öw·ÖÁ¿Îª1.0f
+                // è®¡ç®—æ³•å¹³é¢ä¸z=posZå¹³é¢æ„æˆçš„ç›´çº¿å•ä½åˆ‡å‘é‡ï¼Œç»´æŒwåˆ†é‡ä¸º1.0f
                 XMStoreFloat4(&tangent, XMVector3Normalize(XMVectorSet(normal.y, -normal.x, 0.0f, 0.0f)) + g_XMIdentityR3);
 
                 vertexData = { XMFLOAT3(posX, heightFunc(posX, posZ), posZ),
@@ -679,7 +679,7 @@ namespace Geometry
                 Internal::InsertVertexElement(meshData.vertexVec[vIndex++], vertexData);
             }
         }
-        // ·ÅÈëË÷Òı
+        // æ”¾å…¥ç´¢å¼•
         for (UINT i = 0; i < slicesZ; ++i)
         {
             for (UINT j = 0; j < slicesX; ++j)
@@ -700,4 +700,3 @@ namespace Geometry
 
 
 #endif 
-
