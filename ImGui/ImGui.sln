@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "ImGui.vcxproj", "{2B0863F6-DFF1-48D5-8016-8EEE63859162}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B0863F6-DFF1-48D5-8016-8EEE63859162}.Debug|x64.ActiveCfg = Debug|x64
+		{2B0863F6-DFF1-48D5-8016-8EEE63859162}.Debug|x64.Build.0 = Debug|x64
+		{2B0863F6-DFF1-48D5-8016-8EEE63859162}.Release|x64.ActiveCfg = Release|x64
+		{2B0863F6-DFF1-48D5-8016-8EEE63859162}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4646027B-331F-4E6F-98E7-32D20F183667}
+	EndGlobalSection
+EndGlobal

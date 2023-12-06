@@ -17,6 +17,8 @@
 #include <d3dcompiler.h>
 #include <vector>
 #include <string>
+#include "DDSTextureLoader11.h"	
+#include "WICTextureLoader11.h"
 
 //
 // 宏相关
@@ -184,10 +186,12 @@ HRESULT CreateShaderFromFile(
     LPCSTR shaderModel,
     ID3DBlob** ppBlobOut);
 
-
 //
 // 数学相关函数
 //
+// ------------------------------
+// InverseTranspose函数
+// ------------------------------
 inline DirectX::XMMATRIX XM_CALLCONV InverseTranspose(DirectX::FXMMATRIX M)
 {
     using namespace DirectX;

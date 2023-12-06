@@ -42,6 +42,18 @@
     <ClCompile Include="Keyboard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WICTextureLoader11.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader11.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Transfrom.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DApp.h">
@@ -74,19 +86,27 @@
     <ClInclude Include="Keyboard.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WICTextureLoader11.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader11.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Triangle.hlsli" />
-    <None Include="Cube.hlsli" />
-    <None Include="LightHelper.hlsli" />
-    <None Include="Light.hlsli" />
+    <None Include="HLSL\Basic.hlsli" />
+    <None Include="HLSL\LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Triangle_VS.hlsl" />
-    <FxCompile Include="Triangle_PS.hlsl" />
-    <FxCompile Include="Cube_VS.hlsl" />
-    <FxCompile Include="Cube_PS.hlsl" />
-    <FxCompile Include="Light_VS.hlsl" />
-    <FxCompile Include="Light_PS.hlsl" />
+    <FxCompile Include="HLSL\Basic_2D_PS.hlsl" />
+    <FxCompile Include="HLSL\Basic_3D_PS.hlsl" />
+    <FxCompile Include="HLSL\Basic_2D_VS.hlsl" />
+    <FxCompile Include="HLSL\Basic_3D_VS.hlsl" />
   </ItemGroup>
 </Project>
