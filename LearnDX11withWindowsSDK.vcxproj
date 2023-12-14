@@ -149,6 +149,7 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Transfrom.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="WICTextureLoader11.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="LightHelper.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WICTextureLoader11.h" />
