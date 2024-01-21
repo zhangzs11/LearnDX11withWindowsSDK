@@ -1,10 +1,11 @@
-#ifndef LIGHTHELPER_H
+﻿#ifndef LIGHTHELPER_H
 #define LIGHTHELPER_H
 
 #include <cstring>
 #include <DirectXMath.h>
 
-// Directional light
+
+// 方向光
 struct DirectionalLight
 {
     DirectionalLight() = default;
@@ -23,10 +24,10 @@ struct DirectionalLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
     DirectX::XMFLOAT3 direction;
-    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
+    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
 };
 
-// Point light
+// 点光
 struct PointLight
 {
     PointLight() = default;
@@ -45,16 +46,16 @@ struct PointLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
 
-    // Packing in 4D vector: (position, range)
+    // 打包成4D向量: (position, range)
     DirectX::XMFLOAT3 position;
     float range;
 
-    // Packing in 4D vector: (A0, A1, A2, pad)
+    // 打包成4D向量: (A0, A1, A2, pad)
     DirectX::XMFLOAT3 att;
-    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
+    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
 };
 
-// Spot light
+// 聚光灯
 struct SpotLight
 {
     SpotLight() = default;
@@ -75,37 +76,37 @@ struct SpotLight
     DirectX::XMFLOAT4 diffuse;
     DirectX::XMFLOAT4 specular;
 
-    // Packing in 4D vector: (position, range)
+    // 打包成4D向量: (position, range)
     DirectX::XMFLOAT3 position;
     float range;
 
-    // Packing in 4D vector: (direction, spot)
+    // 打包成4D向量: (direction, spot)
     DirectX::XMFLOAT3 direction;
     float spot;
 
-    // Packing in 4D vector: (att, pad)
+    // 打包成4D向量: (att, pad)
     DirectX::XMFLOAT3 att;
-    float pad; // Extra padding to ensure the structure size is a multiple of 16 bytes, which facilitates later use in HLSL shaders.
+    float pad; // 最后用一个浮点数填充使得该结构体大小满足16的倍数，便于我们以后在HLSL设置数组
 };
 
-// Material properties
-struct Material
+// 物体表面材质
+struct PhongMaterial
 {
-    Material() = default;
+    PhongMaterial() = default;
 
-    Material(const Material&) = default;
-    Material& operator=(const Material&) = default;
+    PhongMaterial(const PhongMaterial&) = default;
+    PhongMaterial& operator=(const PhongMaterial&) = default;
 
-    Material(Material&&) = default;
-    Material& operator=(Material&&) = default;
+    PhongMaterial(PhongMaterial&&) = default;
+    PhongMaterial& operator=(PhongMaterial&&) = default;
 
-    Material(const DirectX::XMFLOAT4& _ambient, const DirectX::XMFLOAT4& _diffuse, const DirectX::XMFLOAT4& _specular,
+    PhongMaterial(const DirectX::XMFLOAT4& _ambient, const DirectX::XMFLOAT4& _diffuse, const DirectX::XMFLOAT4& _specular,
         const DirectX::XMFLOAT4& _reflect) :
         ambient(_ambient), diffuse(_diffuse), specular(_specular), reflect(_reflect) {}
 
     DirectX::XMFLOAT4 ambient;
     DirectX::XMFLOAT4 diffuse;
-    DirectX::XMFLOAT4 specular; // w = Specular power
+    DirectX::XMFLOAT4 specular; // w = 镜面反射强度
     DirectX::XMFLOAT4 reflect;
 };
 

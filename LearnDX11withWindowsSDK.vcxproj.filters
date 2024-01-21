@@ -27,19 +27,7 @@
     <ClCompile Include="DXTrace.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D3DUtil.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GameApp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WICTextureLoader11.cpp">
@@ -48,13 +36,49 @@
     <ClCompile Include="DDSTextureLoader11.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Transfrom.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RenderStates.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicEffect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiLog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuTimer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxEffect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +92,6 @@
     <ClInclude Include="DXTrace.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D3DUtil.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GameApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -81,12 +102,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader11.h">
@@ -104,15 +119,75 @@
     <ClInclude Include="RenderStates.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EffectHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Property.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="XUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IEffect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiLog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Effects.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFormat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuTimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WinMin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HLSL\Basic.hlsli" />
-    <None Include="HLSL\LightHelper.hlsli" />
+    <None Include="Shaders\LightHelper.hlsli" />
+    <None Include="Shaders\Basic.hlsli" />
+    <None Include="Shaders\Skybox.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="HLSL\Basic_2D_PS.hlsl" />
-    <FxCompile Include="HLSL\Basic_3D_PS.hlsl" />
-    <FxCompile Include="HLSL\Basic_2D_VS.hlsl" />
-    <FxCompile Include="HLSL\Basic_3D_VS.hlsl" />
+    <FxCompile Include="Shaders\Basic_PS.hlsl" />
+    <FxCompile Include="Shaders\Basic_VS.hlsl" />
+    <FxCompile Include="Shaders\NormalMap_PS.hlsl" />
+    <FxCompile Include="Shaders\NormalMap_VS.hlsl" />
+    <FxCompile Include="Shaders\Skybox_PS.hlsl" />
+    <FxCompile Include="Shaders\Skybox_VS.hlsl" />
   </ItemGroup>
 </Project>

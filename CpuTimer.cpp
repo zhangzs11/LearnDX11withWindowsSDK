@@ -1,5 +1,5 @@
+#include "WinMin.h"
 #include "CpuTimer.h"
-#include <windows.h>
 
 CpuTimer::CpuTimer()
 {

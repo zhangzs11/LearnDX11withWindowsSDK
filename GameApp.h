@@ -1,78 +1,23 @@
 ﻿#ifndef GAMEAPP_H
 #define GAMEAPP_H
 
-#include "D3DApp.h"
-#include "LightHelper.h"
-#include "Geometry.h"
-#include "Camera.h"
+#include <random>
+#include "WinMin.h"
+#include "d3dApp.h"
+#include "Effects.h"
+#include "CameraController.h"
+#include "RenderStates.h"
+#include "GameObject.h"
+#include "Texture2D.h"
+#include "Buffer.h"
+#include "Collision.h"
+#include "ModelManager.h"
+#include "TextureManager.h"
 
 class GameApp : public D3DApp
 {
 public:
-
-    struct CBChangesEveryDrawing
-    {
-        DirectX::XMMATRIX world;
-        DirectX::XMMATRIX worldInvTranspose;
-    };
-
-    struct CBChangesEveryFrame
-    {
-        DirectX::XMMATRIX view;
-        DirectX::XMFLOAT4 eyePos;
-    };
-
-    struct CBChangesOnResize
-    {
-        DirectX::XMMATRIX proj;
-    };
-
-    struct CBChangesRarely
-    {
-        DirectionalLight dirLight[10];
-        PointLight pointLight[10];
-        SpotLight spotLight[10];
-        Material material;
-        int numDirLight;
-        int numPointLight;
-        int numSpotLight;
-        float pad;		// 打包保证16字节对齐
-    };
-
-    // 一个尽可能小的游戏对象类
-    class GameObject
-    {
-    public:
-        GameObject();
-
-        // 获取物体变换
-        Transform& GetTransform();
-        // 获取物体变换
-        const Transform& GetTransform() const;
-
-        // 设置缓冲区
-        template<class VertexType, class IndexType>
-        void SetBuffer(ID3D11Device* device, const Geometry::MeshData<VertexType, IndexType>& meshData);
-        // 设置纹理
-        void SetTexture(ID3D11ShaderResourceView* texture);
-
-        // 绘制
-        void Draw(ID3D11DeviceContext* deviceContext);
-
-        // 设置调试对象名
-        // 若缓冲区被重新设置，调试对象名也需要被重新设置
-        void SetDebugObjectName(const std::string& name);
-    private:
-        Transform m_Transform;								// 物体变换信息
-        ComPtr<ID3D11ShaderResourceView> m_pTexture;		// 纹理
-        ComPtr<ID3D11Buffer> m_pVertexBuffer;				// 顶点缓冲区
-        ComPtr<ID3D11Buffer> m_pIndexBuffer;				// 索引缓冲区
-        UINT m_VertexStride;								// 顶点字节大小
-        UINT m_IndexCount;								    // 索引数目	
-    };
-
-    // 摄像机模式
-    enum class CameraMode { FirstPerson, ThirdPerson, Free };
+    enum class GroundMode { Floor, Stones };
 
 public:
     GameApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidth, int initHeight);
@@ -84,32 +29,42 @@ public:
     void DrawScene();
 
 private:
-    bool InitEffect();
     bool InitResource();
 
+    void DrawScene(bool draeCenterSphere, const Camera& camera, ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV);
 private:
 
-    ComPtr<ID3D11InputLayout> m_pVertexLayout2D;				// 用于2D的顶点输入布局
-    ComPtr<ID3D11InputLayout> m_pVertexLayout3D;				// 用于3D的顶点输入布局
-    ComPtr<ID3D11Buffer> m_pConstantBuffers[4];				    // 常量缓冲区
+    TextureManager m_TextureManager;
+    ModelManager m_ModelManager;
 
-    GameObject m_WoodCrate;									    // 木盒
-    GameObject m_Floor;										    // 地板
-    std::vector<GameObject> m_Walls;							// 墙壁
+    BasicEffect m_BasicEffect;//对象渲染特效管理
+    SkyboxEffect m_SkyboxEffect;//天空盒特效管理
+    
+    std::unique_ptr<Depth2D>m_pDepthTexture;//深度缓冲区
+    std::unique_ptr<TextureCube>m_pDynamicTextureCube;//动态天空盒
+    std::unique_ptr<Depth2D>m_pDynamicCubeDepthTexture;//渲染动态天空盒的深度缓冲区
+    std::unique_ptr<Texture2D>m_pDebugDynamicCubeTexture;//调试动态天空盒用
 
-    ComPtr<ID3D11VertexShader> m_pVertexShader3D;				// 用于3D的顶点着色器
-    ComPtr<ID3D11PixelShader> m_pPixelShader3D;				    // 用于3D的像素着色器
-    ComPtr<ID3D11VertexShader> m_pVertexShader2D;				// 用于2D的顶点着色器
-    ComPtr<ID3D11PixelShader> m_pPixelShader2D;				    // 用于2D的像素着色器
+    GameObject m_Spheres[5];//球
+    GameObject m_CenterSphere;//中心球体
+    GameObject m_Ground;//地面
+    GameObject m_Cylinders[5];//圆柱
+    GameObject m_Skybox;//天空盒
+    GameObject m_DebugSkybox;//调试用天空盒
 
-    CBChangesEveryFrame m_CBFrame;							    // 该缓冲区存放仅在每一帧进行更新的变量
-    CBChangesOnResize m_CBOnResize;							    // 该缓冲区存放仅在窗口大小变化时更新的变量
-    CBChangesRarely m_CBRarely;								    // 该缓冲区存放不会再进行修改的变量
+    std::shared_ptr<FirstPersonCamera> m_pCamera;			    // 摄像机
+    std::shared_ptr<FirstPersonCamera> m_pCubeCamera;           // 动态天空盒的摄像机
+    std::shared_ptr<FirstPersonCamera> m_pDebugCamera;          // 调试动态天空盒的摄像机
+    FirstPersonCameraController m_CameraController;             // 摄像机控制器
 
-    ComPtr<ID3D11SamplerState> m_pSamplerState;				    // 采样器状态
+    ImVec2 m_DebugTextureXY;//调试显示纹理的位置
+    ImVec2 m_DebugTextureWH;//调试显示纹理的宽高
 
-    std::shared_ptr<Camera> m_pCamera;						    // 摄像机
-    CameraMode m_CameraMode;									// 摄像机模式
+    float m_SphereRad = 0.0f;									// 球体旋转弧度
+
+    bool m_EnableNormalMap = true;								// 开启法线贴图
+
+    GroundMode m_GroundMode = GroundMode::Floor;                // 哪种地面类型
 
 };
 

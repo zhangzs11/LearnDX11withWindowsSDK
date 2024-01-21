@@ -1,15 +1,21 @@
 ﻿//***************************************************************************************
+// Camera.h by X_Jun(MKXJun) (C) 2018-2022 All Rights Reserved.
+// Licensed under the MIT License.
 //
 // 提供第一人称(自由视角)和第三人称摄像机
 // Provide 1st person(free view) and 3rd person cameras.
 //***************************************************************************************
 
+#pragma once
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "WinMin.h"
 #include <d3d11_1.h>
 #include <DirectXMath.h>
 #include "Transform.h"
+
 
 class Camera
 {
@@ -48,13 +54,18 @@ public:
     // 获取矩阵
     //
 
-    DirectX::XMMATRIX GetViewXM() const;
-    DirectX::XMMATRIX GetProjXM() const;
-    DirectX::XMMATRIX GetViewProjXM() const;
+    DirectX::XMMATRIX GetLocalToWorldMatrixXM() const;
+    DirectX::XMMATRIX GetViewMatrixXM() const;
+    DirectX::XMMATRIX GetProjMatrixXM(bool reversedZ = false) const;
+    DirectX::XMMATRIX GetViewProjMatrixXM(bool reversedZ = false) const;
 
     // 获取视口
     D3D11_VIEWPORT GetViewPort() const;
 
+    float GetNearZ() const;
+    float GetFarZ() const;
+    float GetFovY() const;
+    float GetAspectRatio() const;
 
     // 设置视锥体
     void SetFrustum(float fovY, float aspect, float nearZ, float farZ);
@@ -65,20 +76,21 @@ public:
 
 protected:
 
-	//摄像机的变换
-	Transform m_Transform = {};
+    // 摄像机的变换
+    Transform m_Transform = {};
 
-	//视锥体属性
-	float m_NearZ = 0.0f;
-	float m_FarZ = 0.0f;
-	float m_Aspect = 0.0f;
-	float m_FovY = 0.0f;
+    // 视锥体属性
+    float m_NearZ = 0.0f;
+    float m_FarZ = 0.0f;
+    float m_Aspect = 0.0f;
+    float m_FovY = 0.0f;
 
-	//当前视口
-	D3D11_VIEWPORT m_ViewPort = {};
+    // 当前视口
+    D3D11_VIEWPORT m_ViewPort = {};
+
 };
 
-class FirstPersonCamera :public Camera
+class FirstPersonCamera : public Camera
 {
 public:
     FirstPersonCamera() = default;
@@ -96,6 +108,8 @@ public:
     void Walk(float d);
     // 前进(朝前向移动)
     void MoveForward(float d);
+    // 移动
+    void Translate(const DirectX::XMFLOAT3& dir, float magnitude);
     // 上下观察
     // 正rad值向上观察
     // 负rad值向下观察
@@ -106,7 +120,7 @@ public:
     void RotateY(float rad);
 };
 
-class ThirdPersonCamera :public Camera
+class ThirdPersonCamera : public Camera
 {
 public:
     ThirdPersonCamera() = default;
@@ -138,7 +152,7 @@ private:
     float m_Distance = 0.0f;
     // 最小允许距离，最大允许距离
     float m_MinDist = 0.0f, m_MaxDist = 0.0f;
-
 };
+
 
 #endif

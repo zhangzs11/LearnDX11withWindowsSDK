@@ -56,24 +56,52 @@ XMFLOAT3 Camera::GetLookAxis() const
     return m_Transform.GetForwardAxis();
 }
 
-XMMATRIX Camera::GetViewXM() const
+DirectX::XMMATRIX Camera::GetLocalToWorldMatrixXM() const
+{
+    return m_Transform.GetLocalToWorldMatrixXM();
+}
+
+XMMATRIX Camera::GetViewMatrixXM() const
 {
     return m_Transform.GetWorldToLocalMatrixXM();
 }
 
-XMMATRIX Camera::GetProjXM() const
+XMMATRIX Camera::GetProjMatrixXM(bool reversedZ) const
 {
-    return XMMatrixPerspectiveFovLH(m_FovY, m_Aspect, m_NearZ, m_FarZ);
+    if (reversedZ)
+        return XMMatrixPerspectiveFovLH(m_FovY, m_Aspect, m_FarZ, m_NearZ);
+    else
+        return XMMatrixPerspectiveFovLH(m_FovY, m_Aspect, m_NearZ, m_FarZ);
 }
 
-XMMATRIX Camera::GetViewProjXM() const
+XMMATRIX Camera::GetViewProjMatrixXM(bool reversedZ) const
 {
-    return GetViewXM() * GetProjXM();
+    return GetViewMatrixXM() * GetProjMatrixXM(reversedZ);
 }
 
 D3D11_VIEWPORT Camera::GetViewPort() const
 {
     return m_ViewPort;
+}
+
+float Camera::GetNearZ() const
+{
+    return m_NearZ;
+}
+
+float Camera::GetFarZ() const
+{
+    return m_FarZ;
+}
+
+float Camera::GetFovY() const
+{
+    return m_FovY;
+}
+
+float Camera::GetAspectRatio() const
+{
+    return m_Aspect;
 }
 
 void Camera::SetFrustum(float fovY, float aspect, float nearZ, float farZ)
@@ -147,6 +175,11 @@ void FirstPersonCamera::Walk(float d)
 void FirstPersonCamera::MoveForward(float d)
 {
     m_Transform.Translate(m_Transform.GetForwardAxis(), d);
+}
+
+void FirstPersonCamera::Translate(const DirectX::XMFLOAT3& dir, float magnitude)
+{
+    m_Transform.Translate(dir, magnitude);
 }
 
 void FirstPersonCamera::Pitch(float rad)
