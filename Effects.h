@@ -53,14 +53,20 @@ public:
 
     //
     // BasicEffect
-    //
+    // -----------------------------------------------------------------------------------------
 
     // 默认状态来绘制
     void SetRenderDefault();
     // 带法线贴图的绘制
     void SetRenderWithNormalMap();
 
+    // 天空盒
     void SetTextureCube(ID3D11ShaderResourceView* textureCube);
+
+    // 阴影
+    void XM_CALLCONV SetShadowTransformMatrix(DirectX::FXMMATRIX S);
+    void SetDepthBias(float bias);
+    void SetTextureShadowMap(ID3D11ShaderResourceView* textureShadowMap);
 
     // 各种类型灯光允许的最大数目
     static const int maxLights = 5;
@@ -83,6 +89,64 @@ private:
     std::unique_ptr<Impl> pImpl;
 };
 
+class ShadowEffect : public IEffect, public IEffectTransform,
+    public IEffectMaterial, public IEffectMeshData
+{
+public:
+    ShadowEffect();
+    virtual ~ShadowEffect() override;
+
+    ShadowEffect(ShadowEffect&& moveFrom) noexcept;
+    ShadowEffect& operator=(ShadowEffect&& moveFrom) noexcept;
+
+    // 获取单例
+    static ShadowEffect& Get();
+
+    // 初始化所需资源
+    bool InitAll(ID3D11Device* device);
+
+    //
+    // IEffectTransform
+    //
+
+    void XM_CALLCONV SetWorldMatrix(DirectX::FXMMATRIX W) override;
+    void XM_CALLCONV SetViewMatrix(DirectX::FXMMATRIX V) override;
+    void XM_CALLCONV SetProjMatrix(DirectX::FXMMATRIX P) override;
+
+    //
+    // IEffectMaterial
+    //
+
+    void SetMaterial(const Material& material) override;
+
+    //
+    // IEffectMeshData
+    //
+
+    MeshDataInput GetInputData(const MeshData& meshData) override;
+
+    //
+    // ShadowEffect
+    //
+
+    // 仅写入深度图
+    void SetRenderDepthOnly();
+    // Alpha裁剪绘制(处理具有透明度的物体)
+    void SetRenderAlphaClip();
+
+    // 绘制深度图到纹理
+    void RenderDepthToTexture(ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+    //应用常量缓冲区和纹理资源的变更
+    void Apply(ID3D11DeviceContext* deviceContext) override;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pImpl;
+};
 
 class SkyboxEffect : public IEffect, public IEffectTransform,
     public IEffectMaterial, public IEffectMeshData
@@ -126,8 +190,18 @@ public:
     // SkyboxEffect
     //
 
+    // 默认状态来绘制
     void SetRenderDefault();
 
+    // 设置深度图
+    void SetDepthTexture(ID3D11ShaderResourceView* depthTexture);
+    // 设置场景渲染图
+    void SetLitTexture(ID3D11ShaderResourceView* litTexture);
+
+    //
+    // IEffect 
+    // 
+    
     // 应用常量缓冲区和纹理资源的变更
     void Apply(ID3D11DeviceContext* deviceContext) override;
 

@@ -167,3 +167,40 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample,
 
     return bumpedNormalW;
 }
+
+static const float SAMP_SIZE = 2048.0f;
+static const float SMAP_DX = 1.0f / SAMP_SIZE;
+
+float CalcShadowFactor(SamplerComparisonState samShadow,
+                       Texture2D shadowMap,
+                       float4 shadowPosH,
+                       float depthBias)
+{
+    //透视除法
+    shadowPosH.xyz /= shadowPosH.w;
+    
+    //NDC空间的深度值
+    float depth = shadowPosH.z - depthBias;
+    
+    //纹素在纹理坐标下的宽高
+    const float dx = SMAP_DX;
+    
+    float percentLit = 0.0f;//属于阴影的百分比
+    
+    // samShadow为compareValue <= sampleValue时为1.0f(反之为0.0f), 对相邻四个纹素进行采样比较
+    // 并根据采样点位置进行双线性插值
+    // float result0 = depth <= s0;  // .s0      .s1          
+    // float result1 = depth <= s1;
+    // float result2 = depth <= s2;  //     .depth
+    // float result3 = depth <= s3;  // .s2      .s3
+    // float result = BilinearLerp(result0, result1, result2, result3, a, b);  // a b为算出的插值相对位置 
+    [unroll]
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += shadowMap.SampleCmpLevelZero(samShadow,
+            shadowPosH.xy, depth, int2(i % 3 - 1, i / 3 - 1)).r;
+    }
+    
+    return percentLit /= 9.0f;
+}
+

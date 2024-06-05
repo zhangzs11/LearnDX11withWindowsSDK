@@ -5,12 +5,15 @@
 #include "DXTrace.h"
 #include "Vertex.h"
 #include "TextureManager.h"
+#include "ModelManager.h"
+#include "LightHelper.h"
 using namespace DirectX;
 
-//
-// SkyboxEffect::Impl 需要先于SkyboxEffect的定义
-//
+# pragma warning(disable: 26812)
 
+//
+// SkyEffect::Impl 需要先于SkyEffect的定义
+//
 
 class SkyboxEffect::Impl
 {
@@ -33,18 +36,18 @@ public:
     ComPtr<ID3D11InputLayout> m_pCurrInputLayout;
     D3D11_PRIMITIVE_TOPOLOGY m_CurrTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-    ComPtr<ID3D11InputLayout> m_pVertexPosLayout;
+    ComPtr<ID3D11InputLayout> m_pVertexPosNormalTexLayout;
 
     XMFLOAT4X4 m_View, m_Proj;
 };
 
 //
-// SkyboxEffect
+// SkyEffect
 //
 
 namespace
 {
-    // SkyboxEffect单例
+    // SkyEffect单例
     static SkyboxEffect* g_pInstance = nullptr;
 }
 
@@ -74,7 +77,7 @@ SkyboxEffect& SkyboxEffect::operator=(SkyboxEffect&& moveFrom) noexcept
 SkyboxEffect& SkyboxEffect::Get()
 {
     if (!g_pInstance)
-        throw std::exception("SkyboxEffect needs an instance!");
+        throw std::exception("BasicEffect needs an instance!");
     return *g_pInstance;
 }
 
@@ -90,18 +93,27 @@ bool SkyboxEffect::InitAll(ID3D11Device* device)
 
     Microsoft::WRL::ComPtr<ID3DBlob> blob;
 
+    pImpl->m_pEffectHelper->SetBinaryCacheDirectory(L"Shaders\\Cache\\");
 
+    // ******************
     // 创建顶点着色器
-    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("SkyboxVS", L"Shaders\\Skybox_VS.hlsl",
-        device, "VS", "vs_5_0", nullptr, blob.GetAddressOf()));
+    //
+
+    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("SkyboxVS", L"Shaders\\Skybox.hlsl", device,
+        "SkyboxVS", "vs_5_0", nullptr, blob.GetAddressOf()));
     // 创建顶点布局
-    HR(device->CreateInputLayout(VertexPos::GetInputLayout(), ARRAYSIZE(VertexPos::GetInputLayout()),
-        blob->GetBufferPointer(), blob->GetBufferSize(), pImpl->m_pVertexPosLayout.ReleaseAndGetAddressOf()));
+    HR(device->CreateInputLayout(VertexPosNormalTex::GetInputLayout(), ARRAYSIZE(VertexPosNormalTex::GetInputLayout()),
+        blob->GetBufferPointer(), blob->GetBufferSize(), pImpl->m_pVertexPosNormalTexLayout.GetAddressOf()));
 
+    // ******************
     // 创建像素着色器
-    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("SkyboxPS", L"Shaders\\Skybox_PS.hlsl", device, "PS", "ps_5_0", nullptr, blob.GetAddressOf()));
+    //
+    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("SkyboxPS", L"Shaders\\Skybox.hlsl", device,
+        "SkyboxPS", "ps_5_0"));
 
+    // ******************
     // 创建通道
+    //
     EffectPassDesc passDesc;
     passDesc.nameVS = "SkyboxVS";
     passDesc.namePS = "SkyboxPS";
@@ -109,14 +121,12 @@ bool SkyboxEffect::InitAll(ID3D11Device* device)
     {
         auto pPass = pImpl->m_pEffectHelper->GetEffectPass("Skybox");
         pPass->SetRasterizerState(RenderStates::RSNoCull.Get());
-        pPass->SetDepthStencilState(RenderStates::DSSLessEqual.Get(), 0);
     }
-
-    pImpl->m_pEffectHelper->SetSamplerStateByName("g_Sam", RenderStates::SSLinearWrap.Get());
+    pImpl->m_pEffectHelper->SetSamplerStateByName("g_SamplerDiffuse", RenderStates::SSLinearWrap.Get());
 
     // 设置调试对象名
 #if (defined(DEBUG) || defined(_DEBUG)) && (GRAPHICS_DEBUGGER_OBJECT_NAME)
-    SetDebugObjectName(pImpl->m_pVertexPosLayout.Get(), "SkyboxEffect.VertexPosLayout");
+    SetDebugObjectName(pImpl->m_pVertexPosNormalTexLayout.Get(), "SkyboxEffect.VertexPosNormalTexLayout");
 #endif
     pImpl->m_pEffectHelper->SetDebugObjectName("SkyboxEffect");
 
@@ -126,7 +136,7 @@ bool SkyboxEffect::InitAll(ID3D11Device* device)
 void SkyboxEffect::SetRenderDefault()
 {
     pImpl->m_pCurrEffectPass = pImpl->m_pEffectHelper->GetEffectPass("Skybox");
-    pImpl->m_pCurrInputLayout = pImpl->m_pVertexPosLayout;
+    pImpl->m_pCurrInputLayout = pImpl->m_pVertexPosNormalTexLayout;
     pImpl->m_CurrTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
 
@@ -145,24 +155,18 @@ void XM_CALLCONV SkyboxEffect::SetProjMatrix(DirectX::FXMMATRIX P)
     XMStoreFloat4x4(&pImpl->m_Proj, P);
 }
 
-void SkyboxEffect::SetMaterial(const Material& material)
-{
-    TextureManager& tm = TextureManager::Get();
-
-    const std::string& str = material.Get<std::string>("$Skybox");
-    pImpl->m_pEffectHelper->SetShaderResourceByName("g_TexCube", tm.GetTexture(str));
-}
-
 MeshDataInput SkyboxEffect::GetInputData(const MeshData& meshData)
 {
     MeshDataInput input;
     input.pInputLayout = pImpl->m_pCurrInputLayout.Get();
     input.topology = pImpl->m_CurrTopology;
     input.pVertexBuffers = {
-        meshData.m_pVertices.Get()
+        meshData.m_pVertices.Get(),
+        meshData.m_pNormals.Get(),
+        meshData.m_pTexcoordArrays.empty() ? nullptr : meshData.m_pTexcoordArrays[0].Get()
     };
-    input.strides = { 12 };
-    input.offsets = { 0 };
+    input.strides = { 12, 12, 8 };
+    input.offsets = { 0, 0, 0 };
 
     input.pIndexBuffer = meshData.m_pIndices.Get();
     input.indexCount = meshData.m_IndexCount;
@@ -170,14 +174,29 @@ MeshDataInput SkyboxEffect::GetInputData(const MeshData& meshData)
     return input;
 }
 
+void SkyboxEffect::SetMaterial(const Material& material)
+{
+    TextureManager& tm = TextureManager::Get();
+
+    const std::string& str = material.Get<std::string>("$Skybox");
+    pImpl->m_pEffectHelper->SetShaderResourceByName("g_SkyboxTexture", tm.GetTexture(str));
+}
+
+void SkyboxEffect::SetDepthTexture(ID3D11ShaderResourceView* depthTexture)
+{
+    pImpl->m_pEffectHelper->SetShaderResourceByName("g_DepthTexture", depthTexture);
+}
+
+void SkyboxEffect::SetLitTexture(ID3D11ShaderResourceView* litTexture)
+{
+    pImpl->m_pEffectHelper->SetShaderResourceByName("g_LitTexture", litTexture);
+}
+
 void SkyboxEffect::Apply(ID3D11DeviceContext* deviceContext)
 {
-    XMMATRIX V = XMLoadFloat4x4(&pImpl->m_View);
-    V.r[3] = g_XMIdentityR3;
-    XMMATRIX VP = V * XMLoadFloat4x4(&pImpl->m_Proj);
-
+    XMMATRIX VP = XMLoadFloat4x4(&pImpl->m_View) * XMLoadFloat4x4(&pImpl->m_Proj);
     VP = XMMatrixTranspose(VP);
-    pImpl->m_pEffectHelper->GetConstantBufferVariable("g_WorldViewProj")->SetFloatMatrix(4, 4, (const FLOAT*)&VP);
+    pImpl->m_pEffectHelper->GetConstantBufferVariable("g_ViewProj")->SetFloatMatrix(4, 4, (const FLOAT*)&VP);
 
     pImpl->m_pCurrEffectPass->Apply(deviceContext);
 }

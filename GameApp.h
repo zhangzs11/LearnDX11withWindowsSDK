@@ -17,9 +17,6 @@
 class GameApp : public D3DApp
 {
 public:
-    enum class GroundMode { Floor, Stones };
-
-public:
     GameApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidth, int initHeight);
     ~GameApp();
 
@@ -28,44 +25,66 @@ public:
     void UpdateScene(float dt);
     void DrawScene();
 
+    void RenderShadow();
+    void RenderForward();
+    void RenderSkybox();
+
+    template<class Effect>
+    void DrawScene(Effect& effect, std::function<void(Effect&, ID3D11DeviceContext*)> func = [](Effect&, ID3D11DeviceContext*) {})
+    {
+        // 这些物体有法线贴图
+        {
+            // 地面
+            m_Ground.Draw(m_pd3dImmediateContext.Get(), effect);
+
+            // 石柱
+            for (auto& cylinder : m_Cylinders)
+                cylinder.Draw(m_pd3dImmediateContext.Get(), effect);
+        }
+
+        // 没有法线贴图的物体调用普通绘制
+        func(effect, m_pd3dImmediateContext.Get());
+        // 石球
+        for (auto& sphere : m_Spheres)
+            sphere.Draw(m_pd3dImmediateContext.Get(), effect);
+
+        // 房屋
+        m_House.Draw(m_pd3dImmediateContext.Get(), effect);
+    }
+
 private:
     bool InitResource();
 
-    void DrawScene(bool draeCenterSphere, const Camera& camera, ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV);
 private:
 
     TextureManager m_TextureManager;
     ModelManager m_ModelManager;
 
-    BasicEffect m_BasicEffect;//对象渲染特效管理
-    SkyboxEffect m_SkyboxEffect;//天空盒特效管理
-    
-    std::unique_ptr<Depth2D>m_pDepthTexture;//深度缓冲区
-    std::unique_ptr<TextureCube>m_pDynamicTextureCube;//动态天空盒
-    std::unique_ptr<Depth2D>m_pDynamicCubeDepthTexture;//渲染动态天空盒的深度缓冲区
-    std::unique_ptr<Texture2D>m_pDebugDynamicCubeTexture;//调试动态天空盒用
+    bool m_UpdateLight = true;                          // 更新灯光
+    bool m_EnableNormalMap = true;                      // 开启法线贴图
+    bool m_EnableDebug = true;                          // 开启调试模式
+    int m_SlopeIndex = 0;                               // 斜率索引
 
-    GameObject m_Spheres[5];//球
-    GameObject m_CenterSphere;//中心球体
-    GameObject m_Ground;//地面
-    GameObject m_Cylinders[5];//圆柱
-    GameObject m_Skybox;//天空盒
-    GameObject m_DebugSkybox;//调试用天空盒
+    GameObject m_Ground;								// 地面
+    GameObject m_Cylinders[10];						    // 圆柱体
+    GameObject m_Spheres[10];						    // 球体
+    GameObject m_House;								    // 房屋
+    GameObject m_Skybox;                                // 天空盒
 
-    std::shared_ptr<FirstPersonCamera> m_pCamera;			    // 摄像机
-    std::shared_ptr<FirstPersonCamera> m_pCubeCamera;           // 动态天空盒的摄像机
-    std::shared_ptr<FirstPersonCamera> m_pDebugCamera;          // 调试动态天空盒的摄像机
+    std::unique_ptr<Depth2D> m_pDepthTexture;           // 深度纹理
+    std::unique_ptr<Texture2D> m_pLitTexture;           // 场景渲染缓冲区
+    std::unique_ptr<Depth2D> m_pShadowMapTexture;       // 阴影贴图
+    std::unique_ptr<Texture2D> m_pDebugShadowTexture;   // 调试用阴影纹理
+
+    DirectionalLight m_DirLights[3] = {};						// 方向光
+    DirectX::XMFLOAT3 m_OriginalLightDirs[3] = {};				// 初始光方向
+
+    BasicEffect m_BasicEffect;				                    // 基础特效
+    ShadowEffect m_ShadowEffect;				                // 阴影特效
+    SkyboxEffect m_SkyboxEffect;					                // 天空盒特效
+
+    std::shared_ptr<FirstPersonCamera> m_pCamera;	            // 摄像机
     FirstPersonCameraController m_CameraController;             // 摄像机控制器
-
-    ImVec2 m_DebugTextureXY;//调试显示纹理的位置
-    ImVec2 m_DebugTextureWH;//调试显示纹理的宽高
-
-    float m_SphereRad = 0.0f;									// 球体旋转弧度
-
-    bool m_EnableNormalMap = true;								// 开启法线贴图
-
-    GroundMode m_GroundMode = GroundMode::Floor;                // 哪种地面类型
-
 };
 
 

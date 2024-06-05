@@ -81,6 +81,9 @@
     <ClCompile Include="SkyboxEffect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowEffect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DApp.h">
@@ -179,15 +182,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\LightHelper.hlsli" />
-    <None Include="Shaders\Basic.hlsli" />
-    <None Include="Shaders\Skybox.hlsli" />
+    <None Include="Shaders\Shadow.hlsl" />
+    <None Include="Shaders\Skybox.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Basic_PS.hlsl" />
-    <FxCompile Include="Shaders\Basic_VS.hlsl" />
-    <FxCompile Include="Shaders\NormalMap_PS.hlsl" />
-    <FxCompile Include="Shaders\NormalMap_VS.hlsl" />
-    <FxCompile Include="Shaders\Skybox_PS.hlsl" />
-    <FxCompile Include="Shaders\Skybox_VS.hlsl" />
+    <FxCompile Include="Shaders\Basic.hlsl" />
+    <FxCompile Include="Shaders\FullScreenTriangle.hlsl" />
   </ItemGroup>
 </Project>
