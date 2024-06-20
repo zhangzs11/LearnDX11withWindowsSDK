@@ -93,23 +93,22 @@ bool ForwardEffect::InitAll(ID3D11Device* device)
 
     pImpl->m_pEffectHelper = std::make_unique<EffectHelper>();
 
-    pImpl->m_pEffectHelper->SetBinaryCacheDirectory(L"Shaders\\Cache\\");
+    pImpl->m_pEffectHelper->SetBinaryCacheDirectory(L"Shaders\\Cache");
 
-    // 为了对每个着色器编译出最优版本，需要对同一个文件编译出64种版本的着色器。
+    // 为了对每个着色器编译出最优版本，需要对同一个文件编译出80种版本的着色器。
 
     const char* numStrs[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
     D3D_SHADER_MACRO defines[] =
     {
         { "SHADOW_TYPE", "0" },
         { "CASCADE_COUNT_FLAG", "1" },
-        { "BLEND_BETWEEN_CASCADE_LAYERS_FLAG", "0" },
         { "SELECT_CASCADE_BY_INTERVAL_FLAG", "0" },
         { nullptr, nullptr }
     };
 
     Microsoft::WRL::ComPtr<ID3DBlob> blob;
     // 创建顶点着色器
-    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("GeometryVS", L"Shaders\\Rendering.hlsl", device,
+    HR(pImpl->m_pEffectHelper->CreateShaderFromFile("GeometryVS", L"Shaders/Rendering.hlsl", device,
         "GeometryVS", "vs_5_0", defines, blob.GetAddressOf()));
     // 创建顶点布局
     HR(device->CreateInputLayout(VertexPosNormalTex::GetInputLayout(), ARRAYSIZE(VertexPosNormalTex::GetInputLayout()),
@@ -140,7 +139,7 @@ bool ForwardEffect::InitAll(ID3D11Device* device)
                 defines[2].Definition = numStrs[intervalIdx];
 
                 // 创建像素着色器
-                HR(pImpl->m_pEffectHelper->CreateShaderFromFile(psName, L"Shaders\\Rendering.hlsl", device,
+                HR(pImpl->m_pEffectHelper->CreateShaderFromFile(psName, L"Shaders/Rendering.hlsl", device,
                     "ForwardPS", "ps_5_0", defines));
 
                 // 创建通道
@@ -150,6 +149,9 @@ bool ForwardEffect::InitAll(ID3D11Device* device)
             }
         }
     }
+
+
+
 
 
     pImpl->m_pEffectHelper->SetSamplerStateByName("g_Sam", RenderStates::SSAnistropicWrap16x.Get());
@@ -321,7 +323,7 @@ void ForwardEffect::SetLightDir(const DirectX::XMFLOAT3& dir)
     pImpl->m_pEffectHelper->GetConstantBufferVariable("g_LightDir")->SetFloatVector(3, (const float*)&dir);
 }
 
-void ForwardEffect::SetRenderDefault(ID3D11DeviceContext* deviceContext, bool reversedZ)
+void ForwardEffect::SetRenderDefault(bool reversedZ)
 {
     std::string passName = "000_Forward";
     passName[0] = '0' + pImpl->m_ShadowType;
@@ -333,7 +335,7 @@ void ForwardEffect::SetRenderDefault(ID3D11DeviceContext* deviceContext, bool re
     pImpl->m_Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
 
-void ForwardEffect::SetRenderPreZPass(ID3D11DeviceContext* deviceContext, bool reversedZ)
+void ForwardEffect::SetRenderPreZPass(bool reversedZ)
 {
     pImpl->m_pCurrEffectPass = pImpl->m_pEffectHelper->GetEffectPass("PreZ_Forward");
     pImpl->m_pCurrEffectPass->SetDepthStencilState(reversedZ ? RenderStates::DSSGreaterEqual.Get() : nullptr, 0);

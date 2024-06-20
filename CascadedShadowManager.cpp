@@ -29,7 +29,6 @@ HRESULT CascadedShadowManager::InitResource(ID3D11Device* device)
         }
     }
 
-
     m_pCSMTextureArray = std::make_unique<Texture2DArray>(device, m_ShadowSize, m_ShadowSize, format,
         (uint32_t)m_CascadeLevels, m_GenerateMips ? (int)log2f((float)m_ShadowSize) + 1 : 1);
     m_pCSMTempTexture = std::make_unique<Texture2D>(device, m_ShadowSize, m_ShadowSize, format, m_GenerateMips ? (int)log2f((float)m_ShadowSize) + 1 : 1);

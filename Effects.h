@@ -97,9 +97,9 @@ public:
 
 
     // 默认状态来绘制
-    void SetRenderDefault(ID3D11DeviceContext* deviceContext, bool reversedZ = false);
+    void SetRenderDefault(bool reversedZ = false);
     // 进行Pre-Z通道绘制
-    void SetRenderPreZPass(ID3D11DeviceContext* deviceContext, bool reversedZ = false);
+    void SetRenderPreZPass(bool reversedZ = false);
 
 
     // 应用常量缓冲区和纹理资源的变更
@@ -286,39 +286,5 @@ private:
 };
 
 
-class FXAAEffect
-{
-public:
-    FXAAEffect();
-    ~FXAAEffect();
-
-    FXAAEffect(FXAAEffect&& moveFrom) noexcept;
-    FXAAEffect& operator=(FXAAEffect&& moveFrom) noexcept;
-
-    // 获取单例
-    static FXAAEffect& Get();
-
-    // 初始化所需资源
-    bool InitAll(ID3D11Device* device);
-
-    // major = 1 低质量, minor = 0...5
-    // major = 2 中质量, minor = 0...9
-    // major = 3 高质量, minor = 9
-    void SetQuality(int major, int minor);
-    void SetQualitySubPix(float val);
-    void SetQualityEdgeThreshold(float threshold);
-    void SetQualityEdgeThresholdMin(float thresholdMin);
-    void EnableDebug(bool enabled);
-
-    void RenderFXAA(
-        ID3D11DeviceContext* deviceContext,
-        ID3D11ShaderResourceView* input,
-        ID3D11RenderTargetView* output,
-        const D3D11_VIEWPORT& vp);
-
-private:
-    class Impl;
-    std::unique_ptr<Impl> pImpl;
-};
 
 #endif

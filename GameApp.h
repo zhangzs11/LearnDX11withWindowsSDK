@@ -18,6 +18,7 @@
 
 class GameApp : public D3DApp
 {
+public:
 
 public:
     GameApp(HINSTANCE hInstance, const std::wstring& windowName, int initWidth = 1280, int initHeight = 720);
@@ -34,7 +35,7 @@ private:
     void RenderShadowForAllCascades();
     void RenderForward();
     void RenderSkybox();
-    void PostProcess();
+
 
 
 private:
@@ -43,25 +44,20 @@ private:
     GpuTimer m_GpuTimer_Shadow;
     GpuTimer m_GpuTimer_Lighting;
     GpuTimer m_GpuTimer_Skybox;
-    GpuTimer m_GpuTimer_PostProcess;
 
     // MSAA
     int m_MsaaSamples = 1;
-
-    // FXAA
-    bool m_EnableFXAA = true;
-    bool m_DebugFXAA = false;
 
     int m_DebugShadowIndex = 1;
 
     // 阴影
     CascadedShadowManager m_CSManager;
+    bool m_DebugShadow = false;
 
     // 各种资源
     TextureManager m_TextureManager;                                // 纹理读取管理
     ModelManager m_ModelManager;                                    // 模型读取管理
     std::unique_ptr<Texture2DMS> m_pLitBuffer;                      // 场景渲染缓冲区
-    std::unique_ptr<Texture2D> m_pTempBuffer;                       // 存放天空盒渲染结果的缓冲区
     std::unique_ptr<Depth2DMS> m_pDepthBuffer;                      // 深度缓冲区
     std::unique_ptr<Texture2D> m_pDebugShadowBuffer;                // 调试用shadow map纹理
 
@@ -74,12 +70,12 @@ private:
     ForwardEffect m_ForwardEffect;                                  // 前向渲染特效
     ShadowEffect m_ShadowEffect;                                    // 阴影特效
     SkyboxEffect m_SkyboxEffect;                                    // 天空盒特效
-    FXAAEffect m_FXAAEffect;                                        // FXAA特效
 
     // 摄像机
     std::shared_ptr<Camera> m_pViewerCamera;                        // 用户摄像机
     std::shared_ptr<Camera> m_pLightCamera;                         // 光源摄像机
     FirstPersonCameraController m_FPSCameraController;              // 摄像机控制器
+
 };
 
 
