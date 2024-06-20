@@ -12,20 +12,19 @@
 #include "IEffect.h"
 #include "Material.h"
 #include "MeshData.h"
-#include "LightHelper.h"
 
-class BasicEffect : public IEffect, public IEffectTransform,
+class ForwardEffect : public IEffect, public IEffectTransform,
     public IEffectMaterial, public IEffectMeshData
 {
 public:
-    BasicEffect();
-    virtual ~BasicEffect() override;
+    ForwardEffect();
+    virtual ~ForwardEffect() override;
 
-    BasicEffect(BasicEffect&& moveFrom) noexcept;
-    BasicEffect& operator=(BasicEffect&& moveFrom) noexcept;
+    ForwardEffect(ForwardEffect&& moveFrom) noexcept;
+    ForwardEffect& operator=(ForwardEffect&& moveFrom) noexcept;
 
     // 获取单例
-    static BasicEffect& Get();
+    static ForwardEffect& Get();
 
     // 初始化所需资源
     bool InitAll(ID3D11Device* device);
@@ -52,34 +51,56 @@ public:
 
 
     //
-    // BasicEffect
-    // -----------------------------------------------------------------------------------------
+    // ForwardEffect
+    //
+
+    // 0: Cascaded Shadow Map
+    // 1: Variance Shadow Map
+    // 2: Exponmential Shadow Map
+    // 3: Exponential Variance Shadow Map 2-Component
+    // 4: Exponential Variance Shadow Map 4-Component
+    void SetShadowType(int type);
+
+    // 通用
+
+    void SetCascadeLevels(int cascadeLevels);
+    void SetCascadeIntervalSelectionEnabled(bool enable);
+    void SetCascadeVisulization(bool enable);
+    void Set16BitFormatShadow(bool enable);
+
+    void SetCascadeOffsets(const DirectX::XMFLOAT4 offsets[8]);
+    void SetCascadeScales(const DirectX::XMFLOAT4 scales[8]);
+    void SetCascadeFrustumsEyeSpaceDepths(const float depths[8]);
+    void SetCascadeBlendArea(float blendArea);
+    void SetShadowSize(int size);
+    void XM_CALLCONV SetShadowViewMatrix(DirectX::FXMMATRIX ShadowView);
+    void SetShadowTextureArray(ID3D11ShaderResourceView* shadow);
+
+    void SetPosExponent(float posExp);
+    void SetNegExponent(float negExp);
+    void SetLightBleedingReduction(float value);
+    void SetCascadeSampler(ID3D11SamplerState* sampler);
+
+
+
+    // CSM
+    void SetPCFKernelSize(int size);
+    void SetPCFDepthBias(float bias);
+
+    // VSM
+    void SetMagicPower(float power);
+
+
+
+
+    void SetLightDir(const DirectX::XMFLOAT3& dir);
+
 
     // 默认状态来绘制
-    void SetRenderDefault();
-    // 带法线贴图的绘制
-    void SetRenderWithNormalMap();
+    void SetRenderDefault(ID3D11DeviceContext* deviceContext, bool reversedZ = false);
+    // 进行Pre-Z通道绘制
+    void SetRenderPreZPass(ID3D11DeviceContext* deviceContext, bool reversedZ = false);
 
-    // 天空盒
-    void SetTextureCube(ID3D11ShaderResourceView* textureCube);
-
-    // 阴影
-    void XM_CALLCONV SetShadowTransformMatrix(DirectX::FXMMATRIX S);
-    void SetDepthBias(float bias);
-    void SetTextureShadowMap(ID3D11ShaderResourceView* textureShadowMap);
-
-    // 各种类型灯光允许的最大数目
-    static const int maxLights = 5;
-
-    void SetDirLight(uint32_t pos, const DirectionalLight& dirLight);
-    void SetPointLight(uint32_t pos, const PointLight& pointLight);
-    void SetSpotLight(uint32_t pos, const SpotLight& spotLight);
-
-    void SetEyePos(const DirectX::XMFLOAT3& eyePos);
-
-    void SetReflectionEnabled(bool isEnable);
-    void SetRefractionEnabled(bool isEnable);
-    void SetRefractionEta(float eta);	// 空气/介质折射比
 
     // 应用常量缓冲区和纹理资源的变更
     void Apply(ID3D11DeviceContext* deviceContext) override;
@@ -131,8 +152,30 @@ public:
 
     // 仅写入深度图
     void SetRenderDepthOnly();
-    // Alpha裁剪绘制(处理具有透明度的物体)
-    void SetRenderAlphaClip();
+
+    // 同时将深度绘制到深度图
+    void SetRenderDefault();
+
+    // 生成方差阴影
+    void RenderVarianceShadow(ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+    // 生成指数阴影
+    void RenderExponentialShadow(ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp,
+        float magic_power);
+
+    // 生成指数方差阴影
+    // 提供NegExp时，将会带负指数项
+    void RenderExponentialVarianceShadow(ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp,
+        float posExp, float* optNegExp = nullptr);
 
     // 绘制深度图到纹理
     void RenderDepthToTexture(ID3D11DeviceContext* deviceContext,
@@ -140,7 +183,35 @@ public:
         ID3D11RenderTargetView* output,
         const D3D11_VIEWPORT& vp);
 
-    //应用常量缓冲区和纹理资源的变更
+    void Set16BitFormatShadow(bool enable);
+
+    // size: 奇数, 3-15
+    void SetBlurKernelSize(int size);
+    void SetBlurSigma(float sigma);
+
+    // input和output纹理宽高要求一致
+    void GaussianBlurX(
+        ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+    // input和output纹理宽高要求一致
+    void GaussianBlurY(
+        ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+    // input和output纹理宽高要求一致
+    void LogGaussianBlur(
+        ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+
+    // 应用常量缓冲区和纹理资源的变更
     void Apply(ID3D11DeviceContext* deviceContext) override;
 
 private:
@@ -149,7 +220,7 @@ private:
 };
 
 class SkyboxEffect : public IEffect, public IEffectTransform,
-    public IEffectMaterial, public IEffectMeshData
+    public IEffectMeshData, public IEffectMaterial
 {
 public:
     SkyboxEffect();
@@ -163,6 +234,7 @@ public:
 
     // 初始化所需资源
     bool InitAll(ID3D11Device* device);
+
 
     //
     // IEffectTransform
@@ -186,7 +258,7 @@ public:
 
     MeshDataInput GetInputData(const MeshData& meshData) override;
 
-    //
+    // 
     // SkyboxEffect
     //
 
@@ -198,10 +270,13 @@ public:
     // 设置场景渲染图
     void SetLitTexture(ID3D11ShaderResourceView* litTexture);
 
+    // 设置MSAA采样等级
+    void SetMsaaSamples(UINT msaaSamples);
+
     //
-    // IEffect 
-    // 
-    
+    // IEffect
+    //
+
     // 应用常量缓冲区和纹理资源的变更
     void Apply(ID3D11DeviceContext* deviceContext) override;
 
@@ -211,8 +286,39 @@ private:
 };
 
 
+class FXAAEffect
+{
+public:
+    FXAAEffect();
+    ~FXAAEffect();
 
+    FXAAEffect(FXAAEffect&& moveFrom) noexcept;
+    FXAAEffect& operator=(FXAAEffect&& moveFrom) noexcept;
 
+    // 获取单例
+    static FXAAEffect& Get();
 
+    // 初始化所需资源
+    bool InitAll(ID3D11Device* device);
+
+    // major = 1 低质量, minor = 0...5
+    // major = 2 中质量, minor = 0...9
+    // major = 3 高质量, minor = 9
+    void SetQuality(int major, int minor);
+    void SetQualitySubPix(float val);
+    void SetQualityEdgeThreshold(float threshold);
+    void SetQualityEdgeThresholdMin(float thresholdMin);
+    void EnableDebug(bool enabled);
+
+    void RenderFXAA(
+        ID3D11DeviceContext* deviceContext,
+        ID3D11ShaderResourceView* input,
+        ID3D11RenderTargetView* output,
+        const D3D11_VIEWPORT& vp);
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pImpl;
+};
 
 #endif

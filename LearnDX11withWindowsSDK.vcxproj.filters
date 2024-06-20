@@ -84,6 +84,15 @@
     <ClCompile Include="ShadowEffect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CascadedShadowManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FXAAEffect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ForwardEffect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DApp.h">
@@ -179,14 +188,21 @@
     <ClInclude Include="Collision.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CascadedShadowManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\LightHelper.hlsli" />
     <None Include="Shaders\Shadow.hlsl" />
     <None Include="Shaders\Skybox.hlsl" />
+    <None Include="Shaders\Rendering.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Basic.hlsl" />
     <FxCompile Include="Shaders\FullScreenTriangle.hlsl" />
+    <FxCompile Include="Shaders\FXAA.hlsl" />
+    <FxCompile Include="Shaders\ConstantBuffers.hlsl" />
+    <FxCompile Include="Shaders\CascadedShadow.hlsl" />
   </ItemGroup>
 </Project>
