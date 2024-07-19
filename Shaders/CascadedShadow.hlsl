@@ -82,7 +82,8 @@ float ChebyshevUpperBound(float2 moments,
                           float lightBleedingReduction)
 {
     float variance = moments.y - (moments.x * moments.x);
-    variance = max(variance, minVariance); // 防止0除
+    variance = max(variance, minVariance); // 防止0除,如果方差为0，可能是完全遮挡，也可能是完全不遮挡，
+                                           //完全不遮挡的话，occluder的均值就是当前的深度值，这时候切尔碧雪夫分母就为0，就出问题了
     
     float d = receiverDepth - moments.x;
     float p_max = variance / (variance + d * d);
@@ -90,7 +91,8 @@ float ChebyshevUpperBound(float2 moments,
     p_max = ReduceLightBleeding(p_max, lightBleedingReduction);
     
     // 单边切比雪夫
-    return (receiverDepth <= moments.x ? 1.0f : p_max);
+    return (receiverDepth <= moments.x ? 1.0f : p_max); //如果当前的深度小于等于shadowmap采样的期望，那么就是没遮挡，
+                                                        //只有大于的时候，应用近似切尔碧雪夫不等式的值
 }
 
 //--------------------------------------------------------------------------------------

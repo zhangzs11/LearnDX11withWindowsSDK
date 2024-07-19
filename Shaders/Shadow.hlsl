@@ -92,11 +92,11 @@ float ExponentialShadowPS(float4 posH : SV_Position,
                           uniform float c) : SV_Target
 {
     uint2 coords = uint2(posH.xy);
-    return c * g_TextureShadow[coords];
+    return c * g_TextureShadow[coords];  // cd
 }
 
-float2 EVSM2CompPS(float4 posH : SV_Position,
-                  float2 texCoord : TEXCOORD) : SV_Target
+float2 EVSM2CompPS(float4 posH : SV_Position,                   
+                  float2 texCoord : TEXCOORD) : SV_Target   // 只用正的那个wrapper
 {
     uint2 coords = uint2(posH.xy);
     float2 exponents = GetEVSMExponents(g_EvsmExponents.x, g_EvsmExponents.y, g_16BitShadow);
@@ -106,11 +106,11 @@ float2 EVSM2CompPS(float4 posH : SV_Position,
 }
 
 float4 EVSM4CompPS(float4 posH : SV_Position,
-                   float2 texCoord : TEXCOORD) : SV_Target
+                   float2 texCoord : TEXCOORD) : SV_Target  // 用positive和negative两个wrapper
 {
     uint2 coords = uint2(posH.xy);
     float2 depth = ApplyEvsmExponents(g_TextureShadow[coords].x, g_EvsmExponents);
-    float4 outDepth = float4(depth, depth * depth).xzyw; //?????????Why “xzyw” this sequence
+    float4 outDepth = float4(depth, depth * depth).xzyw; //“xzyw” this sequence
     return outDepth;
 }
 

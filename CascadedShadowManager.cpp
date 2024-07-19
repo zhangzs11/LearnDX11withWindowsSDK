@@ -98,7 +98,7 @@ void CascadedShadowManager::UpdateFrame(const Camera& viewerCamera,
         BoundingFrustum viewerFrustum(ViewerProj);
         viewerFrustum.Near = frustumIntervalBegin;
         viewerFrustum.Far = frustumIntervalEnd;
-        // 将局部视锥体变换到世界空间后，再变换到光照空间
+        // 将局部视锥体变换到世界空间后，再变换到光照View空间
         viewerFrustum.Transform(viewerFrustum, ViewerInvView * LightView);
         viewerFrustum.GetCorners(viewerFrustumPoints);
         // 计算视锥体在光照空间下的AABB和vMax, vMin
@@ -128,22 +128,22 @@ void CascadedShadowManager::UpdateFrame(const Camera& viewerCamera,
             // 我们仅对XY方向进行填充
             static const XMVECTORF32 xyzw1100Vec = { {1.0f, 1.0f, 0.0f, 0.0f} };
             lightCameraOrthographicMaxVec += borderOffsetVec * xyzw1100Vec.v;
-            lightCameraOrthographicMinVec -= borderOffsetVec * xyzw1100Vec.v;
+            lightCameraOrthographicMinVec -= borderOffsetVec * xyzw1100Vec.v; // 让AABB加减偏移量borderOffset后，变成以上面计算得到的lengthVec为宽高的AABB
         }
 
         // 我们基于PCF核的大小再计算一个边界扩充值使得包围盒稍微放大一些。
         // 等比缩放不会影响前面固定大小的AABB
         {
-            float scaleDuetoBlur = m_BlurKernelSize / (float)m_ShadowSize;
+            float scaleDuetoBlur = m_BlurKernelSize / (float)m_ShadowSize;//PCF核大小占整个阴影map的多少，后面用AABB的大小再乘这个scale就是相当于PCF采集的时候，会采集AABB盒的大小
             XMVECTORF32 scaleDuetoBlurVec = { {scaleDuetoBlur, scaleDuetoBlur, 0.0f, 0.0f} };
 
             XMVECTOR borderOffsetVec = lightCameraOrthographicMaxVec - lightCameraOrthographicMinVec;
-            borderOffsetVec *= g_XMOneHalf.v;
-            borderOffsetVec *= scaleDuetoBlurVec.v;
-            lightCameraOrthographicMaxVec += borderOffsetVec;
+            borderOffsetVec *= g_XMOneHalf.v;//AABB盒大小的一半
+            borderOffsetVec *= scaleDuetoBlurVec.v;//一次PCF核采集AABB盒的大小的一半
+            lightCameraOrthographicMaxVec += borderOffsetVec;// 加了,一次PCF核采集,会采集AABB盒的大小，的一半,应该是,
+                                                             // 因为当PCF在盒子的边缘的时候，会blur的时候向盒子外采集到PCF核的一半，所以要给拓展出来
             lightCameraOrthographicMinVec -= borderOffsetVec;
         }
-
 
         if (m_MoveLightTexelSize)
         {
@@ -168,6 +168,11 @@ void CascadedShadowManager::UpdateFrame(const Camera& viewerCamera,
             lightCameraOrthographicMaxVec /= worldUnitsPerTexelVec;
             lightCameraOrthographicMaxVec = XMVectorFloor(lightCameraOrthographicMaxVec);
             lightCameraOrthographicMaxVec *= worldUnitsPerTexelVec;
+            // 我暂时的理解，如果摄像机有细小的移动，AABB会移动，得到的投影矩阵也会有细小的移动，同一个世界坐标位置的点经过投影后到达光照投影空间后的坐标也会不同，
+            // 这个时候shadow map存储的深度值还没跟上变化，所以导致同一个位置两个时刻采样的深度值不同，导致了闪烁
+            // 
+            // 当AABB的x或y的移动矩阵为一个texel在世界空间的对应距离了，这时候我觉得shadow map的深度值随着摄像机的移动也跟着变化了，这时候再更新AABB，
+            // 此时同一个世界空间的点得到的变化的投影坐标，对应的虽然是新的采样位置，但是此处的深度值也跟着更新了，就是正确的原来的位置
         }
 
         float nearPlane = 0.0f;
@@ -255,7 +260,7 @@ void XM_CALLCONV CascadedShadowManager::ComputeNearAndFar(
     XMVECTOR pointsInCameraView[])
 {
     // 核心思想
-    // 1. 对AABB的所有12个三角形进行迭代
+    // 1. 对场景AABB的所有12个三角形进行迭代
     // 2. 每个三角形分别对正交投影的4个侧面进行裁剪。裁剪过程中可能会出现这些情况：
     //    - 0个点在该侧面的内部，该三角形可以剔除
     //    - 1个点在该侧面的内部，计算该点与另外两个点在侧面上的交点得到新三角形

@@ -721,7 +721,7 @@ void GameApp::RenderForward()
         XMFLOAT4 offsets[8]{};
         for (size_t cascadeIndex = 0; cascadeIndex < m_CSManager.m_CascadeLevels; ++cascadeIndex)
         {
-            XMMATRIX ShadowTexture = m_CSManager.GetShadowProjectionXM(cascadeIndex) * T;
+            XMMATRIX ShadowTexture = m_CSManager.GetShadowProjectionXM(cascadeIndex) * T;//T不耽误这次矩阵乘法位置固定，可以直接分解成offset，scale后续进行等价运算
             scales[cascadeIndex].x = XMVectorGetX(ShadowTexture.r[0]);
             scales[cascadeIndex].y = XMVectorGetY(ShadowTexture.r[1]);
             scales[cascadeIndex].z = XMVectorGetZ(ShadowTexture.r[2]);
