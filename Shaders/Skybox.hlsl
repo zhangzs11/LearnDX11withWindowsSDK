@@ -1,18 +1,12 @@
-#ifndef SKYBOX_TONE_MAP_HLSL
-#define SKYBOX_TONE_MAP_HLSL
+
+#ifndef SKYBOX_HLSL
+#define SKYBOX_HLSL
+
+#include "GBuffer.hlsl"
 
 #ifndef MSAA_SAMPLES
 #define MSAA_SAMPLES 1
 #endif
-
-uniform matrix g_ViewProj;
-
-struct VertexPosNormalTex
-{
-    float3 posL : POSITION;
-    float3 normalL : NORMAL;
-    float2 texCoord : TEXCOORD;
-};
 
 //--------------------------------------------------------------------------------------
 // 后处理, 天空盒等
@@ -41,43 +35,41 @@ SkyboxVSOut SkyboxVS(VertexPosNormalTex input)
     return output;
 }
 
-SamplerState g_SamplerDiffuse : register(s0);
-
 float4 SkyboxPS(SkyboxVSOut input) : SV_Target
 {
     uint2 coords = input.posViewport.xy;
-    
+
     float3 lit = float3(0.0f, 0.0f, 0.0f);
     float skyboxSamples = 0.0f;
 #if MSAA_SAMPLES <= 1
     [unroll]
 #endif
-    for (unsigned int sampleIndex = 0; sampleIndex < MSAA_SAMPLES; ++sampleIndex) //为什么要这个循环
+    for (unsigned int sampleIndex = 0; sampleIndex < MSAA_SAMPLES; ++sampleIndex)
     {
         float depth = g_DepthTexture.Load(coords, sampleIndex);
 
-        // 注意：反向Z
-        if (depth <= 0.0f)
+        // 检查天空盒的状态（注意：反向Z!）  
+        if (depth <= 0.0f && !g_VisualizeLightCount)
         {
             ++skyboxSamples;
         }
         else
         {
-            lit += g_LitTexture.Load(coords, sampleIndex).xyz; // Load这个函数??
+            lit += g_LitTexture.Load(coords, sampleIndex).xyz;
         }
     }
-    
+
     // 如果这里没有场景渲染，则渲染天空盒
-    [branch] // branch是干什么的
+    [branch]
     if (skyboxSamples > 0)
     {
-        float3 skybox = g_SkyboxTexture.Sample(g_SamplerDiffuse, input.skyboxCoord).xyz;
+        float3 skybox = g_SkyboxTexture.Sample(g_Sam, input.skyboxCoord).xyz;
         lit += skyboxSamples * skybox;
     }
     
-    // Resolve 多重采样
-    return float4(lit * rcp((float) MSAA_SAMPLES), 1.0f); //rcp这个函数干什么的
+    // Resolve 多重采样(简单盒型滤波)
+    return float4(lit * rcp((float) MSAA_SAMPLES), 1.0f);
 }
 
 
-#endif // SKYBOX_TONE_MAP_HLSL
+#endif // SKYBOX_HLSL

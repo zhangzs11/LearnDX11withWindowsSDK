@@ -4,15 +4,21 @@
 
 #include "FullScreenTriangle.hlsl"
 #include "ConstantBuffers.hlsl"
-#include "CascadedShadow.hlsl"
 
-
-Texture2D g_DiffuseMap : register(t0);
-SamplerState g_Sam : register(s0);
+//--------------------------------------------------------------------------------------
+// 工具函数 
+//--------------------------------------------------------------------------------------
+float linstep(float min_value, float max_value, float value)
+{
+    return saturate((value - min_value) / (max_value - min_value));
+}
 
 //--------------------------------------------------------------------------------------
 // 几何阶段 
 //--------------------------------------------------------------------------------------
+Texture2D g_DiffuseMap : register(t0);
+SamplerState g_Sam : register(s0);
+
 struct VertexPosNormalTex
 {
     float3 posL : POSITION;
@@ -20,89 +26,131 @@ struct VertexPosNormalTex
     float2 texCoord : TEXCOORD;
 };
 
-struct VertexOut
+struct VertexPosHVNormalVTex
 {
     float4 posH : SV_POSITION;
-    float3 posW : POSITION;
-    float3 normalW : NORMAL;
-    float2 texCoord : TEXCOORD0;
-    float4 shadowPosV : TEXCOORD1;
-    float depthV : TEXCOORD2;
+    float3 posV : POSITION;
+    float3 normalV : NORMAL;
+    float2 texCoord : TEXCOORD;
 };
 
-VertexOut GeometryVS(VertexPosNormalTex input)
+VertexPosHVNormalVTex GeometryVS(VertexPosNormalTex input)
 {
-    VertexOut output;
+    VertexPosHVNormalVTex output;
 
     output.posH = mul(float4(input.posL, 1.0f), g_WorldViewProj);
-    output.posW = mul(float4(input.posL, 1.0f), g_World).xyz;
-    output.normalW = mul(float4(input.normalL, 0.0f), g_WorldInvTranspose).xyz;
+    output.posV = mul(float4(input.posL, 1.0f), g_WorldView).xyz;
+    output.normalV = mul(float4(input.normalL, 0.0f), g_WorldInvTransposeView).xyz;
     output.texCoord = input.texCoord;
-    output.shadowPosV = mul(float4(output.posW, 1.0f), g_ShadowView);
-    output.depthV = mul(float4(input.posL, 1.0f), g_WorldView).z;
+    
     return output;
 }
 
-//--------------------------------------------------------------------------------------
-// 延迟阴影阶段
-//--------------------------------------------------------------------------------------
-void DeferredShadowWithColorPS(VertexOut input,
-                               out float percentLit : SV_Target0,
-                               out float4 visualizeCascadeColor : SV_Target1)
+float3 ComputeFaceNormal(float3 pos)
 {
-    int cascadeIndex = 0;
-    int nextCascadeIndex = 0;
-    float blendAmount = 0.0f;
-    percentLit = CalculateCascadedShadow(input.shadowPosV, input.depthV,
-                                         cascadeIndex, nextCascadeIndex, blendAmount);
-    visualizeCascadeColor = GetCascadeColorMultipler(cascadeIndex, nextCascadeIndex, saturate(blendAmount));
+    return cross(ddx_coarse(pos), ddy_coarse(pos));
 }
 
-float DeferredShadowPS(VertexOut input) : SV_Target
+struct SurfaceData
 {
-    int cascadeIndex = 0;
-    int nextCascadeIndex = 0;
-    float blendAmount = 0.0f;
-    float percentLit = CalculateCascadedShadow(input.shadowPosV, input.depthV,
-                                               cascadeIndex, nextCascadeIndex, blendAmount);
-    return percentLit;
+    float3 posV;
+    float3 posV_DX;
+    float3 posV_DY;
+    float3 normalV;
+    float4 albedo;
+    float specularAmount;
+    float specularPower;
+};
+
+SurfaceData ComputeSurfaceDataFromGeometry(VertexPosHVNormalVTex input)
+{
+    SurfaceData surface;
+    surface.posV = input.posV;
+    
+    // 右/下相邻像素与当前像素的位置差
+    surface.posV_DX = ddx_coarse(surface.posV);
+    surface.posV_DY = ddy_coarse(surface.posV);
+    
+    // 该表面法线可用于替代提供的法线
+    float3 faceNormal = ComputeFaceNormal(input.posV);
+    surface.normalV = normalize(g_FaceNormals ? faceNormal : input.normalV);
+    
+    surface.albedo = g_DiffuseMap.Sample(g_Sam, input.texCoord);
+    surface.albedo.rgb = g_LightingOnly ? float3(1.0f, 1.0f, 1.0f) : surface.albedo.rgb;
+    
+    // 我们没有艺术资产相关的值来设置下面这些，现在就设置成看起来比较合理的值
+    surface.specularAmount = 0.9f;
+    surface.specularPower = 25.0f;
+    
+    return surface;
 }
 
 //--------------------------------------------------------------------------------------
 // 光照阶段 
 //--------------------------------------------------------------------------------------
-float4 ForwardPS(VertexOut input) : SV_Target
+struct PointLight
 {
-    int cascadeIndex = 0;
-    int nextCascadeIndex = 0;
-    float blendAmount = 0.0f;
-    float percentLit = CalculateCascadedShadow(input.shadowPosV, input.depthV,
-        cascadeIndex, nextCascadeIndex, blendAmount);
-    
-    float4 diffuse = g_DiffuseMap.Sample(g_Sam, input.texCoord);
-    
-    float4 visualizeCascadeColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    if (g_VisualizeCascades)
-        visualizeCascadeColor = GetCascadeColorMultipler(cascadeIndex, nextCascadeIndex, saturate(blendAmount));
-    
-    // 灯光硬编码
-    float3 lightDir[4] =
+    float3 posV;
+    float attenuationBegin;
+    float3 color;
+    float attenuationEnd;
+};
+
+// 大量的动态点光源
+StructuredBuffer<PointLight> g_Light : register(t5);
+
+// 这里分成diffuse/specular项方便延迟光照使用
+void AccumulatePhong(float3 normal, float3 lightDir, float3 viewDir, float3 lightContrib, float specularPower,
+                     inout float3 litDiffuse, inout float3 litSpecular)
+{
+    float NdotL = dot(normal, lightDir);
+    [flatten]
+    if (NdotL > 0.0f)
     {
-        float3(-1.0f, 1.0f, -1.0f),
-        float3(1.0f, 1.0f, -1.0f),
-        float3(0.0f, -1.0f, 0.0f),
-        float3(1.0f, 1.0f, 1.0f)
-    };
-    // 类似环境光的照明
-    float lighting = saturate(dot(lightDir[0], input.normalW)) * 0.05f +
-                     saturate(dot(lightDir[1], input.normalW)) * 0.05f +
-                     saturate(dot(lightDir[2], input.normalW)) * 0.05f +
-                     saturate(dot(lightDir[3], input.normalW)) * 0.05f;
+        float3 r = reflect(lightDir, normal);
+        float RdotV = max(0.0f, dot(r, viewDir));
+        float specular = pow(RdotV, specularPower);
+        
+        litDiffuse += lightContrib * NdotL;
+        litSpecular += lightContrib * specular;
+    }
+}
+
+void AccumulateDiffuseSpecular(SurfaceData surface, PointLight light,
+                               inout float3 litDiffuse, inout float3 litSpecular)
+{
+    float3 dirToLight = light.posV - surface.posV;
+    float distToLight = length(dirToLight);
     
-    float shadowLighting = lighting * 0.5f;
-    lighting += saturate(dot(-g_LightDir, input.normalW));
-    lighting = lerp(shadowLighting, lighting, percentLit);
-    return lighting * visualizeCascadeColor * diffuse;
+    [branch]
+    if (distToLight < light.attenuationEnd)
+    {
+        float attenuation = linstep(light.attenuationEnd, light.attenuationBegin, distToLight);
+        dirToLight *= rcp(distToLight);
+        AccumulatePhong(surface.normalV, dirToLight, normalize(surface.posV),
+            attenuation * light.color, surface.specularPower, litDiffuse, litSpecular);
+    }
+    
+}
+
+void AccumulateColor(SurfaceData surface, PointLight light,
+                     inout float3 litColor)
+{
+    float3 dirToLight = light.posV - surface.posV;
+    float distToLight = length(dirToLight);
+    
+    [branch]
+    if (distToLight < light.attenuationEnd)
+    {
+        float attenuation = linstep(light.attenuationEnd, light.attenuationBegin, distToLight);
+        dirToLight *= rcp(distToLight);
+        
+        float3 litDiffuse = float3(0.0f, 0.0f, 0.0f);
+        float3 litSpecular = float3(0.0f, 0.0f, 0.0f);
+        AccumulatePhong(surface.normalV, dirToLight, normalize(surface.posV),
+            attenuation * light.color, surface.specularPower, litDiffuse, litSpecular);
+        litColor += surface.albedo.rgb * (litDiffuse + surface.specularAmount * litSpecular);
+    }
 }
 
 #endif // RENDERING_HLSL

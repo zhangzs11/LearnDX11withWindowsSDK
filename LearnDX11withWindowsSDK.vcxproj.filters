@@ -81,9 +81,6 @@
     <ClCompile Include="SkyboxEffect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowEffect.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CascadedShadowManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -91,6 +88,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ForwardEffect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DeferredEffect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -204,5 +204,8 @@
     <FxCompile Include="Shaders\FXAA.hlsl" />
     <FxCompile Include="Shaders\ConstantBuffers.hlsl" />
     <FxCompile Include="Shaders\CascadedShadow.hlsl" />
+    <FxCompile Include="Shaders\BasicDeferred.hlsl" />
+    <FxCompile Include="Shaders\Forward.hlsl" />
+    <FxCompile Include="Shaders\GBuffer.hlsl" />
   </ItemGroup>
 </Project>
